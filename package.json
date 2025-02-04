@@ -26,7 +26,7 @@
     "expo-constants": "^16.0.2",
     "expo-notifications": "~0.28.19",
     "nativewind": "4.1.23",
-    "oneentry": "1.0.101",
+    "oneentry": "1.0.107",
     "react": "18.2.0",
     "react-native": "0.74.5",
     "react-native-calendars": "^1.1302.0",
@@ -78,6 +78,5 @@
   },
   "engines": {
     "node": ">=16"
-  },
-  "packageManager": "yarn@4.0.2"
+  }
 }

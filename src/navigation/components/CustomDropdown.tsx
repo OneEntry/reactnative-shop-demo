@@ -2,6 +2,13 @@ import React, {memo, useContext, useEffect, useState} from 'react';
 import {StyleSheet, Text, View} from 'react-native';
 import {Dropdown} from 'react-native-element-dropdown';
 import {LanguageContext} from '../../providers/LanguageContext';
+import {RTKApi} from '../../api';
+import {useAppDispatch} from '../../store/hooks';
+
+export type DropdownItem = {
+  label: any;
+  value: any;
+};
 
 interface Props {
   data: DropdownItem[];
@@ -10,10 +17,12 @@ interface Props {
 const CustomDropdown: React.FC<Props> = ({data}) => {
   const [value, setValue] = useState<string>();
   const {setActiveLanguage, activeLanguage} = useContext(LanguageContext);
+  const dispatch = useAppDispatch();
 
   useEffect(() => {
     setValue(activeLanguage);
   }, [activeLanguage]);
+
   const renderItem = (item: DropdownItem) => {
     return (
       <View style={styles.item}>
@@ -35,6 +44,7 @@ const CustomDropdown: React.FC<Props> = ({data}) => {
       value={value}
       onChange={(item: DropdownItem) => {
         setActiveLanguage(item.value);
+        dispatch(RTKApi.util.resetApiState());
       }}
       renderItem={renderItem}
     />

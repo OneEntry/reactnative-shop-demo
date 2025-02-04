@@ -41,7 +41,6 @@ export const useGetProducts = ({
   ]);
   const [getBlockByMarker] = useLazyGetBlockByMarkerQuery();
   const [loading, setLoading] = useState<boolean>(false);
-  const {activeLanguage} = useContext(LanguageContext);
   const [refresh, setRefresh] = useState<boolean>(false);
   const filters = useAppSelector(selectAllFilters);
 
@@ -49,33 +48,22 @@ export const useGetProducts = ({
     if (limit && pageUrl) {
       if (mainPage) {
         try {
-          if (filters?.length || searchValue) {
-            const res = await api.Products.getProducts(
-              // @ts-ignore
-              searchValue ? [{title: searchValue}, ...filters] : filters,
-              activeLanguage,
-              {
-                sortOrder: sortOrder,
-                sortKey: sortKey,
-                offset,
-                limit,
-              },
-            );
-            return res.items;
-          }
-
-          const {data, error} = await getBlockByMarker({
-            marker: mainPage,
-            offset,
-            limit,
-            langCode: activeLanguage,
-          });
-
-          if (error) {
-            throw new Error(error.toString());
-          }
-
-          return data?.similarProducts;
+          const res = await api.Products.getProducts(
+            // @ts-ignore
+            searchValue
+              ? [{title: searchValue}, ...filters]
+              : filters?.length
+              ? filters
+              : [{pageUrls: ['shop'], isNested: true}],
+            undefined,
+            {
+              sortOrder: sortOrder,
+              sortKey: sortKey,
+              offset,
+              limit,
+            },
+          );
+          return res.items;
         } catch (e: any) {
           Alert.alert(e?.message || '');
         }
@@ -94,7 +82,7 @@ export const useGetProducts = ({
           const res = await api.Products.getProductsByPageUrl(
             pageUrl,
             expandedFilters,
-            activeLanguage,
+            undefined,
             {
               sortOrder: sortOrder,
               sortKey: sortKey,
@@ -133,16 +121,7 @@ export const useGetProducts = ({
       }
       setLoading(false);
     })();
-  }, [
-    limit,
-    activeLanguage,
-    filters,
-    searchValue,
-    offset,
-    refresh,
-    mainPage,
-    isLoading,
-  ]);
+  }, [limit, filters, searchValue, offset, refresh, mainPage, isLoading]);
 
   return {
     products,

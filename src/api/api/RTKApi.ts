@@ -20,11 +20,13 @@ import {IAttributesSetsEntity} from 'oneentry/dist/attribute-sets/attributeSetsI
 import {IBlockEntity} from 'oneentry/dist/blocks/blocksInterfaces';
 import {
   IProductBlock,
+  IProductEntity,
   IProductsEntity,
   IProductsResponse,
 } from 'oneentry/dist/products/productsInterfaces';
 import {IMenusEntity} from 'oneentry/dist/menus/menusInterfaces';
 import {ILocalEntity} from 'oneentry/dist/locales/localesInterfaces';
+import { logJSON } from "../../utils/logJSON";
 
 export const RTKApi = createApi({
   reducerPath: 'api',
@@ -65,6 +67,7 @@ export const RTKApi = createApi({
       queryFn: async () => {
         try {
           const result = await api.Users.getUser();
+          logJSON(result);
           if (!result || (result as IError)?.statusCode >= 400) {
             throw new Error(
               JSON.stringify({
@@ -166,8 +169,8 @@ export const RTKApi = createApi({
       queryFn: async ({setMarker, attributeMarker}) => {
         try {
           const result = await api.AttributesSets.getSingleAttributeByMarkerSet(
-            attributeMarker,
             setMarker,
+            attributeMarker,
           );
 
           if ((result as IError)?.statusCode >= 400) {
@@ -189,7 +192,7 @@ export const RTKApi = createApi({
         try {
           const result = await api.Blocks.getBlockByMarker(
             marker,
-            langCode,
+            langCode || undefined,
             offset,
             limit,
           );
@@ -197,6 +200,7 @@ export const RTKApi = createApi({
           if ((result as IError)?.statusCode >= 400) {
             throw new Error((result as IError)?.message);
           }
+
           return {data: result as IBlockEntity};
         } catch (e: any) {
           return {error: e.message};
@@ -279,7 +283,7 @@ export const RTKApi = createApi({
 
           return {
             data: {
-              limit: (result.productsPerRow || 1) * (result.rowsPerPage || 2),
+              limit: (result.productsPerRow || 2) * (result.rowsPerPage <= 1 ? 2 : result.rowsPerPage),
               columns: result?.productsPerRow || 2,
             },
           };
@@ -322,6 +326,17 @@ export const RTKApi = createApi({
         }
       },
     }),
+    getProductsByIds: build.query<IProductsEntity[], {items: string}>({
+      queryFn: async ({items}) => {
+        const products = await api.Products.getProductsByIds(items);
+        if (!products || (products as IError).statusCode >= 400) {
+          return {error: 'Data error'};
+        } else {
+          return {data: products as IProductEntity[]};
+        }
+      },
+    }),
+
     getMenu: build.query<IMenusEntity, {marker: string}>({
       queryFn: async ({marker}) => {
         try {
@@ -393,4 +408,5 @@ export const {
   useGetMenuQuery,
   useGetLocalesQuery,
   useGetPagesQuery,
+  useGetProductsByIdsQuery,
 } = RTKApi;

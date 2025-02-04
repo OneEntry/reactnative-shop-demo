@@ -16,7 +16,12 @@ import ErrorBlock from '../../shared/ErrorBlock';
 import {navigate} from '../../../navigation/utils/NavigatonRef';
 import Footer from '../../ui/space/Footer';
 import {useGetProductsByIds} from '../CartScreen/hooks/useGetProductsByIds';
-import {useGetProductByIdQuery} from '../../../api/api/RTKApi';
+import {
+  useGetProductByIdQuery,
+  useGetProductsByIdsQuery,
+} from '../../../api/api/RTKApi';
+import {logJSON} from '../../../utils/logJSON';
+import {SHIPPING_PRODUCT_ID} from '@env';
 
 type Props = {
   setTotal: Dispatch<number>;
@@ -26,6 +31,7 @@ const ItemsInOrderList: React.FC<Props> = ({setTotal}) => {
   const currency = useAppSelector(state => state.cartReducer.currency);
   const items = useAppSelector(selectCartItems);
   const {products} = useGetProductsByIds({items});
+  const {data: products2} = useGetProductsByIdsQuery({items: '14'});
   const dispatch = useAppDispatch();
   const {data, error} = useGetOrderStorageByMarkerQuery({
     marker: 'order',
@@ -34,7 +40,12 @@ const ItemsInOrderList: React.FC<Props> = ({setTotal}) => {
     productId: item.id,
     quantity: item.quantity,
   }));
-  const {data: product, error: err} = useGetProductByIdQuery({id: 83});
+  const {data: product, error: err} = useGetProductByIdQuery({
+    id: parseInt(SHIPPING_PRODUCT_ID),
+  });
+
+  logJSON('use get products}');
+  // logJSON(products2.length);
 
   // Effect to add shipping price to the order when the product data is fetched
   useEffect(() => {
@@ -64,7 +75,10 @@ const ItemsInOrderList: React.FC<Props> = ({setTotal}) => {
         createOrder({
           formIdentifier: 'order',
           formData: [],
-          products: [...reducedItems, {productId: 83, quantity: 1}],
+          products: [
+            ...reducedItems,
+            {productId: parseInt(SHIPPING_PRODUCT_ID), quantity: 1},
+          ],
           paymentAccountIdentifier: '',
         }),
       );
@@ -77,7 +91,12 @@ const ItemsInOrderList: React.FC<Props> = ({setTotal}) => {
     if (!items?.length) {
       navigate('cart');
     }
-    dispatch(addProducts([...reducedItems, {productId: 83, quantity: 1}]));
+    dispatch(
+      addProducts([
+        ...reducedItems,
+        {productId: parseInt(SHIPPING_PRODUCT_ID), quantity: 1},
+      ]),
+    );
   }, [items]);
 
   if (err || error) {

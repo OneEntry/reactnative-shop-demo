@@ -1,6 +1,6 @@
 import './global.css';
 import 'react-native-gesture-handler';
-import React from 'react';
+import React, {useState} from 'react';
 import {Router} from './src/navigation/navigators/Router';
 import {LanguageProvider} from './src/providers/LanguageContext';
 import {Provider} from 'react-redux';
@@ -8,7 +8,6 @@ import {setupStore} from './src/store/store';
 import {MenuProvider} from 'react-native-popup-menu';
 import {SafeAreaProvider} from 'react-native-safe-area-context';
 import {OpenDrawerProvider} from './src/providers/OpenDrawerContext';
-import {ContentContextProvider} from './src/providers/ContentContext';
 import {LogBox} from 'react-native';
 import {AuthProvider} from './src/providers/AuthContext';
 import Toast from 'react-native-toast-message';
@@ -30,19 +29,17 @@ function App(): JSX.Element {
         {/* Authentication state */}
         <AuthProvider>
           {/* Load block which marker is system_content */}
-          <ContentContextProvider>
-            <MenuProvider>
-              <OpenDrawerProvider>
-                <SafeAreaProvider>
-                  {/* Provide keyboard context to the app to properly display the inputs and avoid keyboard */}
-                  <KeyboardProvider>
-                    <Router />
-                  </KeyboardProvider>
-                  <Toast topOffset={60} />
-                </SafeAreaProvider>
-              </OpenDrawerProvider>
-            </MenuProvider>
-          </ContentContextProvider>
+          <MenuProvider>
+            <OpenDrawerProvider>
+              <SafeAreaProvider>
+                {/* Provide keyboard context to the app to properly display the inputs and avoid keyboard */}
+                <KeyboardProvider>
+                  <Router />
+                </KeyboardProvider>
+                <Toast topOffset={60} />
+              </SafeAreaProvider>
+            </OpenDrawerProvider>
+          </MenuProvider>
         </AuthProvider>
       </LanguageProvider>
     </Provider>

@@ -17,8 +17,11 @@ interface Props {}
 const CartItemsList: React.FC<Props> = ({}) => {
   const items = useAppSelector(selectCartItems);
   const {products, setProducts} = useGetProductsByIds({items});
-  const {cart_item_options, empty_cart_plug} = useAppSelector(
+  const {empty_cart_plug} = useAppSelector(
     state => state.systemContentReducer.content,
+  );
+  const cart_item_options = useAppSelector(
+    state => state.systemContentReducer.cart_item_options,
   );
   const dispatch = useAppDispatch();
 

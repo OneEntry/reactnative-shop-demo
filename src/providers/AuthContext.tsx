@@ -1,6 +1,6 @@
 import {createContext, ReactNode, useContext, useEffect, useState} from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import {api, reDefine} from '../api/index';
+import {api, reDefine, RTKApi} from '../api/index';
 import {useLazyGetMeQuery} from '../api';
 import {IUserEntity} from 'oneentry/dist/users/usersInterfaces';
 import {LanguageContext} from './LanguageContext';
@@ -58,9 +58,8 @@ export const AuthProvider = ({children}: Props) => {
 
   const onInit = async () => {
     const refresh = await AsyncStorage.getItem('refresh-token');
-    if (refresh) {
-      reDefine(refresh, activeLanguage);
-    }
+    console.log(refresh);
+    reDefine(refresh || '', activeLanguage);
 
     setIsAuth(true);
     await checkToken();

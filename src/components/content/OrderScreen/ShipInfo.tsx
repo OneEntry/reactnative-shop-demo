@@ -78,7 +78,7 @@ const ShipInfo: React.FC<Props> = ({total}) => {
             size: 16,
           }}
           onPress={onSubmitOrder}>
-          {go_to_pay_placeholder.toUpperCase()}
+          {go_to_pay_placeholder?.toUpperCase()}
         </Button>
       </View>
       <CalendarModal visible={visibleDate} setVisible={setVisibleDate} />

@@ -21,9 +21,9 @@ const OrderScreen: React.FC<Props> = ({}) => {
     <KeyboardAvoidingView behavior={'position'}>
       <Screen isFull white edges={['horizontal']}>
         <TopSpacerV2 height={75 * proportionY} />
-        <ItemsInOrderList setTotal={setTotal} />{' '}
+        <ItemsInOrderList setTotal={setTotal} />
         {/* List of items in the order */}
-        <ShipInfo total={total} />{' '}
+        <ShipInfo total={total} />
         {/* Shipping information, total amount and logic */}
       </Screen>
     </KeyboardAvoidingView>

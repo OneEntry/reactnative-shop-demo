@@ -1,8 +1,8 @@
 {
   "expo": {
-    "name": "OneEntry: Shopping Online",
+    "name": "Shopping Online",
     "slug": "shop",
-    "version": "1.5.3",
+    "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "userInterfaceStyle": "dark",
@@ -14,7 +14,7 @@
     "ios": {
       "googleServicesFile": "./GoogleService-Info.plist",
       "bundleIdentifier": "",
-      "associatedDomains": [""]
+      "associatedDomains": []
     },
     "android": {
       "versionCode": 1,
@@ -25,7 +25,6 @@
         "foregroundImage": "./assets/images/icon.png",
         "backgroundColor": "#FFFFFF"
       }
-
     },
     "plugins": [
       "@react-native-firebase/app",

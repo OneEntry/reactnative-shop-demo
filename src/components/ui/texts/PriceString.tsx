@@ -32,8 +32,12 @@ const PriceString: React.FC<Props> = ({
   return (
     <>
       {sale && price ? (
-        <View className={'flex-row items-center space-x-1.5'}>
-          <Paragraph className={className} style={style} size={textSizes[size]} weight="bold">
+        <View className={'flex-row items-center gap-x-1.5'}>
+          <Paragraph
+            className={className}
+            style={style}
+            size={textSizes[size]}
+            weight="bold">
             {currency} {price - sale}
           </Paragraph>
           <Paragraph

@@ -16,7 +16,6 @@ const SimilarProductsList: React.FC<Props> = ({relatedItems}) => {
     marker: relatedItems?.identifier || '',
   });
 
-  console.log(data);
   if (isLoading) {
     return (
       <Skeleton
@@ -36,7 +35,7 @@ const SimilarProductsList: React.FC<Props> = ({relatedItems}) => {
         </View>
       </View>
       <FlatList
-        data={data?.similarProducts}
+        data={data?.similarProducts?.items}
         renderItem={({item}) => (
           <FeaturedObjectItem inner product={item} loading={isLoading} />
         )}

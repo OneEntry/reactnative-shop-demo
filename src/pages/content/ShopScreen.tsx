@@ -64,6 +64,7 @@ export const ShopScreen: React.FC<NavigationProps> = ({route}) => {
     isLoading: isLoadingBlocks,
   });
 
+
   const [refreshing, setRefreshing] = useState<boolean>(false);
 
   //add values to price filter

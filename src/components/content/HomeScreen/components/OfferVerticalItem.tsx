@@ -56,7 +56,7 @@ const OfferVerticalItem: React.FC<Props> = ({
         </View>
         <View className={'absolute left-6 bottom-4 w-1/2'}>
           <Paragraph weight={'700'} size={24} color={'white'}>
-            {text && text.toUpperCase()}
+            {text && text?.toUpperCase()}
           </Paragraph>
         </View>
       </ImageBackground>

@@ -25,7 +25,8 @@ export let api = defineOneEntry(PROJECT_URL, {
 });
 
 //This function used to update hooks config
-export function reDefine(refreshToken: string, langCode?: string) {
+export function reDefine(refreshToken?: string, langCode?: string) {
+  console.log(langCode);
   api = defineOneEntry(PROJECT_URL, {
     langCode: langCode || 'en_US',
     token: APP_TOKEN,
