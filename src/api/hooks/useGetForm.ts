@@ -1,8 +1,8 @@
 import {useContext, useEffect, useRef, useState} from 'react';
 import {IFormsEntity} from 'oneentry/dist/forms/formsInterfaces';
-import {LanguageContext} from '../../providers/LanguageContext';
+import {LanguageContext} from '../../state/contexts/LanguageContext';
 import {IAttributes, IError} from 'oneentry/dist/base/utils';
-import {api} from '../api/api';
+import {defineApi} from '../api/defineApi';
 
 type UseGetFormProps = {
   marker: string;
@@ -32,7 +32,7 @@ export const useGetForm = ({marker}: UseGetFormProps) => {
     setLoading(true);
     (async () => {
       try {
-        const result = await api.Forms.getFormByMarker(marker);
+        const result = await defineApi.Forms.getFormByMarker(marker);
 
         if ((result as IError)?.statusCode >= 400) {
           throw new Error((result as IError)?.message);

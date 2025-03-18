@@ -30,8 +30,8 @@ const BigButton: React.FC<Props> = ({
             ? 'border-accent border-sm'
             : 'border-gray border-sm'
           : !rest.disabled
-          ? 'bg-accent'
-          : 'bg-gray'
+            ? 'bg-accent'
+            : 'bg-gray'
       }`}
       style={[styles]}
       paragraphProps={{

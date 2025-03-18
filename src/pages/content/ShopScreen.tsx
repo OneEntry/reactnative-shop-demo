@@ -2,13 +2,12 @@ import {View} from 'react-native';
 import React, {useCallback, useEffect, useState} from 'react';
 import {NavigationProps} from '../../navigation/types/types';
 import {Screen} from '../../components/ui/templates/Screen';
-import {useGetProducts} from '../../api';
 import TopSpacerV2 from '../../components/ui/space/TopSpacerV2';
-import {useAppDispatch, useAppSelector} from '../../store/hooks';
+import {useAppDispatch, useAppSelector} from '../../state/hooks';
 import {
   addMinMaxFilterPlaceholders,
   setCatalogOffset,
-} from '../../store/reducers/FilterSlice';
+} from '../../state/reducers/FilterSlice';
 import {
   CatalogBadges,
   ShopProductsList,
@@ -18,63 +17,74 @@ import {
 import ContentNotFoundBlock from '../../components/shared/ContentNotFoundBlock';
 import {useFocusEffect} from '@react-navigation/native';
 import {useGetConfigQuery} from '../../api/api/RTKApi';
+import useGetProducts from '../../hooks/content/ShopScreen/useGetProducts';
+import {addCartCurrency} from '../../state/reducers/userStateSlice';
 
+/**
+ * ShopScreen component represents the main shopping screen.
+ * It fetches product configurations and products, handles sorting, filtering, and refreshing.
+ *
+ * @param {NavigationProps} props - Component props.
+ * @returns {React.ReactElement} - Rendered component.
+ */
 export const ShopScreen: React.FC<NavigationProps> = ({route}) => {
   const [sortOption, setSortOption] = useState<'low' | 'high' | undefined>();
+
+  // Select filters from the Redux store
   const {
     catalogOffset: currentOffset,
     search,
     availability,
   } = useAppSelector(state => state.filterReducer);
-  const dispatch = useAppDispatch();
-  const [disableLoading, setDisableLoading] = useState(false);
 
+  const dispatch = useAppDispatch();
+  const pageUrl = route.params.pageUrl;
+
+  // Fetch configuration data for the active catalog
   const {
     data,
     refetch: refetchConfig,
     isLoading: loadingConfig,
   } = useGetConfigQuery({
-    pageUrl: route.params.pageUrl,
+    pageUrl,
   });
 
   const limit = data?.limit || 10;
   const columns = data?.columns || 2;
 
-  const {
-    sortBlock,
-    mainProductsBlock,
-    isLoading: isLoadingBlocks,
-  } = useGetShopBlocks({pageUrl: route.params.pageUrl});
+  // Fetch shop blocks (e.g., sort block)
+  const {sortBlock} = useGetShopBlocks({pageUrl});
 
-  //Hook to get products
+  // Fetch products based on the current page, filters and sort option
   const {
     products,
-    loading: loadingProducts,
+    shouldShowLoader,
     refetch,
+    isFetching: loadingProducts,
   } = useGetProducts({
-    pageUrl: route.params.pageUrl,
+    pageUrl,
     offset: currentOffset,
     limit,
-    searchValue: search,
-    disableLoading: disableLoading,
-    sortOrder: sortOption ? (sortOption === 'high' ? 'DESC' : 'ASC') : 'DESC',
-    sortKey: sortOption ? 'price' : 'position',
+    search,
     availability,
-    mainPage: mainProductsBlock?.identifier,
-    isLoading: isLoadingBlocks,
+    sortOption,
   });
 
-
+  // State for managing refresh status
   const [refreshing, setRefreshing] = useState<boolean>(false);
 
-  //add values to price filter
+  /**
+   * Adds minimum and maximum price filter placeholders to the Redux store.
+   */
   useEffect(() => {
     if (products?.length && products[0]?.additional?.prices) {
       dispatch(addMinMaxFilterPlaceholders(products[0]?.additional?.prices));
     }
   }, [products]);
 
-  //refetch products when sort option changes
+  /**
+   * Resets the catalog offset and refetches products when the sort option or availability changes.
+   */
   useEffect(() => {
     if (sortOption || availability) {
       dispatch(setCatalogOffset(0));
@@ -82,28 +92,47 @@ export const ShopScreen: React.FC<NavigationProps> = ({route}) => {
     }
   }, [sortOption, availability]);
 
-  //reset offset when leaving the screen
+  /**
+   * Resets the catalog offset when the screen loses focus (e.g., navigating away).
+   */
   useFocusEffect(
     useCallback(() => {
       dispatch(setCatalogOffset(0));
     }, []),
   );
 
+  /**
+   * Handles the refresh process.
+   */
   const onRefresh = () => {
     setRefreshing(true);
-    setDisableLoading(true);
     setTimeout(() => {
       setSortOption(undefined);
       refetchConfig();
       refetch();
-      setDisableLoading(false);
       setTimeout(() => {
         setRefreshing(false);
       }, 300);
     }, 1700);
   };
 
-  if (!products.length && !limit && !loadingProducts && !loadingConfig) {
+  /**
+   * Adds the currency of the first product to the Redux state store when products are fetched.
+   */
+  useEffect(() => {
+    if (products?.length) {
+      const currency = products[0]?.attributeValues?.currency?.value;
+      currency && dispatch(addCartCurrency(currency));
+    }
+  }, [products]);
+
+  if (
+    !products?.length &&
+    !limit &&
+    !loadingProducts &&
+    !loadingConfig &&
+    !shouldShowLoader
+  ) {
     return <ContentNotFoundBlock />;
   }
 
@@ -121,7 +150,7 @@ export const ShopScreen: React.FC<NavigationProps> = ({route}) => {
         <CatalogBadges refreshing={refreshing} setSortOption={setSortOption} />
         <ShopProductsList
           products={products}
-          loadingProducts={loadingProducts}
+          loadingProducts={currentOffset > 0 ? false : loadingProducts}
           loading={loadingConfig}
           refreshing={refreshing}
           onRefresh={onRefresh}

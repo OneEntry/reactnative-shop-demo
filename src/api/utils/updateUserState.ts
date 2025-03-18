@@ -1,4 +1,4 @@
-import {api} from '../api/api';
+import {defineApi} from '../api/defineApi';
 import {IError} from 'oneentry/dist/base/utils';
 
 export const updateUserState = async ({
@@ -9,7 +9,7 @@ export const updateUserState = async ({
   cart?: {id: number; quantity: number}[];
 }) => {
   try {
-    const res = await api.Users.updateUser({
+    const res = await defineApi.Users.updateUser({
       formIdentifier: 'reg',
       state: {
         ...(favorites && {favorites}),

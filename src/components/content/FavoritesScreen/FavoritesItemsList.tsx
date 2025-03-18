@@ -1,71 +1,35 @@
-import React, {memo, useEffect} from 'react';
+import React, {memo} from 'react';
 import FavoritesItem from './FavoritesItem';
 import {FlatList} from 'react-native';
 import EmptyContentBlock from '../../shared/EmptyContentBlock';
-import {useAppSelector} from '../../../store/hooks';
+import {useAppSelector} from '../../../state/hooks';
 import Footer from '../../ui/space/Footer';
-import useGetProductsByIds from './hooks/useGetProductsByIds';
-import Skeleton from 'react-native-reanimated-skeleton';
-import {api} from '../../../api';
-import {IProductsEntity} from 'oneentry/dist/products/productsInterfaces';
+import useGetProductsByIds from '../../../hooks/shared/useGetProductsByIds';
+import Skeleton from '../../shared/Skeleton';
+import useWebSocket from '../../../hooks/shared/useWebSocket';
 
 type Props = {};
 
-const FavoritesItemsList: React.FC<Props> = ({}) => {
-  const ids = useAppSelector(state => state.favoritesReducer.products);
+/**
+ * FavoritesItemsList component displays a list of favorite products.
+ * It fetches products by their IDs, handles loading states, and displays
+ * an empty content block if there are no favorites.
+ * It also handles WebSocket updates for real-time data synchronization.
+ *
+ * @param {Props} props - Component props.
+ * @returns {React.ReactElement} - Rendered component.
+ */
+const FavoritesItemsList: React.FC<Props> = ({}: Props): React.ReactElement => {
+  const ids = useAppSelector(state => state.userStateReducer.favorites);
   const {products, loading, setProducts} = useGetProductsByIds({ids});
+  useWebSocket({products, setProducts});
 
   const emptyFavoritesPlug = useAppSelector(
     state => state.systemContentReducer.content.empty_favorites_plug,
   );
 
-  //WebSocket
-  useEffect(() => {
-    if (products) {
-      const ws = api.WS.connect();
-      if (ws) {
-        ws.on('notification', async res => {
-          if (res?.product) {
-            const product = {
-              ...res.product,
-              attributeValues: res.product?.attributes,
-            };
-
-            const index = products.findIndex(
-              (p: IProductsEntity) => p.id === product.id,
-            );
-            const newPrice = parseInt(
-              product?.attributeValues?.price?.value,
-              10,
-            );
-
-            setProducts(prevProducts => {
-              const newProducts = [...prevProducts];
-              newProducts[index] = {
-                ...products[index],
-                price: newPrice,
-                statusIdentifier: res?.product?.status?.identifier,
-              };
-              return newProducts;
-            });
-          }
-        });
-
-        return () => {
-          ws.disconnect();
-        };
-      }
-    }
-  }, [products]);
-
   if (loading) {
-    return (
-      <Skeleton
-        containerStyle={{height: 130}}
-        isLoading={loading}
-        layout={[{key: 'item1', height: 130, width: '100%'}]}
-      />
-    );
+    return <Skeleton height={130} isLoading={loading} />;
   }
 
   return (

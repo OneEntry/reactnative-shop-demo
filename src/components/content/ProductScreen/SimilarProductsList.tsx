@@ -4,8 +4,8 @@ import {Paragraph} from '../../ui/texts/Paragraph';
 import {FeaturedObjectItem} from '../../shared/FeaturedObjectItem';
 import ContentNotFoundBlock from '../../shared/ContentNotFoundBlock';
 import {IProductBlock} from 'oneentry/dist/products/productsInterfaces';
-import Skeleton from 'react-native-reanimated-skeleton';
 import {useGetBlockByMarkerQuery} from '../../../api/api/RTKApi';
+import Skeleton from '../../shared/Skeleton';
 
 type Props = {
   relatedItems?: IProductBlock;
@@ -17,13 +17,7 @@ const SimilarProductsList: React.FC<Props> = ({relatedItems}) => {
   });
 
   if (isLoading) {
-    return (
-      <Skeleton
-        containerStyle={{height: 250}}
-        isLoading={isLoading}
-        layout={[{key: 'blocks', width: '100%', height: 250, borderRadius: 15}]}
-      />
-    );
+    return <Skeleton height={250} />;
   }
   return (
     <>

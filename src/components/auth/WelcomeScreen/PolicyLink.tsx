@@ -1,7 +1,7 @@
 import React from 'react';
 import {Linking, TouchableOpacity} from 'react-native';
 import {Paragraph} from '../../ui/texts/Paragraph';
-import {useAppSelector} from '../../../store/hooks';
+import {useAppSelector} from '../../../state/hooks';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 
 type Props = {};

@@ -6,59 +6,60 @@ import Dots from '../../../../assets/icons/dots.svg';
 import PopUpMenu, {PopUpOption} from '../../../shared/PopUpMenu';
 import Card from '../../../ui/cards/Card';
 import Rating from '../../../shared/Rating';
-import {
-  CartState,
-  deselectProduct,
-  removeProduct,
-} from '../../../../store/reducers/CartSlice';
-import {useAppDispatch, useAppSelector} from '../../../../store/hooks';
+import {useAppDispatch, useAppSelector} from '../../../../state/hooks';
 import Tick from '../../../../assets/icons/galk.svg';
 import {IListTitle} from 'oneentry/dist/attribute-sets/attributeSetsInterfaces';
 import PriceString from '../../../ui/texts/PriceString';
 import CustomImage from '../../../ui/templates/CustomImage';
 import AddToCartCounter from '../../../shared/AddToCartCounter';
-import {updateUserState} from '../../../../api/utils/updateUserState';
+import {
+  CartItemType,
+  removeFromCart,
+  toggleCartItemSelect,
+} from '../../../../state/reducers/userStateSlice';
 
 interface Props {
   productFromCart?: IProductsEntity;
-  item: CartState & {selected: boolean};
+  item: CartItemType & {selected: boolean};
   popUpButtons?: IListTitle[];
 }
 
-const CartItem: React.FC<Props> = ({productFromCart, popUpButtons, item}) => {
+/**
+ * A React component that represents an individual cart item.
+ * This component displays the product image, title, rating, price, and actions like selecting and deleting.
+ *
+ * @component CartItem
+ * @param {Props} props - The properties passed to the component.
+ * @param {IProductsEntity | undefined} props.productFromCart - The product data from the cart.
+ * @param {CartItemType & { selected: boolean }} props.item - The cart item object.
+ * @param {IListTitle[] | undefined} props.popUpButtons - Optional list of popup menu buttons.
+ * @returns {React.ReactElement} A React element representing the cart item.
+ */
+const CartItem: React.FC<Props> = ({
+  productFromCart,
+  popUpButtons,
+  item,
+}: Props): React.ReactElement => {
   const dispatch = useAppDispatch();
-  const items = useAppSelector(state => state.cartReducer.products);
-  const favorites = useAppSelector(state => state.favoritesReducer.products);
   const {outOfStock} = useAppSelector(
     state => state.systemContentReducer.content.buttons,
   );
 
-
+  //Effect to deselect the item if it's out of stock.
   useEffect(() => {
     if (productFromCart) {
       if (
         productFromCart?.statusIdentifier === 'out_of_stock' &&
         item?.selected
       ) {
-        dispatch(deselectProduct(productFromCart.id));
+        dispatch(toggleCartItemSelect(productFromCart.id));
       }
     }
   }, [[productFromCart]]);
 
   const actions: Record<string, any> = {
     delete: async () => {
-      dispatch(removeProduct(item.id));
-      await updateUserState({
-        favorites,
-        cart: items
-          .filter(product => product.id !== item.id)
-          .map(product => {
-            return {
-              id: product.id,
-              quantity: product.quantity,
-            };
-          }),
-      });
+      dispatch(removeFromCart(item.id));
     },
     share: () => {
       Alert.alert('Share action');
@@ -66,6 +67,9 @@ const CartItem: React.FC<Props> = ({productFromCart, popUpButtons, item}) => {
     null: () => {},
   };
 
+  /**
+   * Memoized computation of popup menu options.
+   */
   const popUpOptions: PopUpOption[] = useMemo(() => {
     if (!popUpButtons) {
       return [];
@@ -81,7 +85,7 @@ const CartItem: React.FC<Props> = ({productFromCart, popUpButtons, item}) => {
 
   const selectItem = () => {
     if (productFromCart?.statusIdentifier !== 'out_of_stock') {
-      item && dispatch(deselectProduct(item.id));
+      item && dispatch(toggleCartItemSelect(item.id));
     }
   };
 

@@ -136,7 +136,7 @@ const AppInput = forwardRef<TextInput, Props>(
           <View style={styles.error_container}>
             <Image
               style={{width: 15, height: 15}}
-              source={require('../../../../assets/alert_circle.png')}
+              source={require('../../shared/assets/alert_circle.png')}
             />
             <Paragraph size={12} color={'red'} {...errorMessage}>
               {validationErrorMessage}

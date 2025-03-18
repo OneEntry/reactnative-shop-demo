@@ -5,11 +5,11 @@ import Menu from '../../../assets/icons/menu.svg';
 import {Screen} from '../../ui/templates/Screen';
 import {DrawerActions} from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import {useAppDispatch, useAppSelector} from '../../../store/hooks';
+import {useAppDispatch, useAppSelector} from '../../../state/hooks';
 import {useAppNavigation} from '../../../navigation/types/types';
-import {OpenDrawerContext} from '../../../providers/OpenDrawerContext';
+import {OpenDrawerContext} from '../../../state/contexts/OpenDrawerContext';
 import {styleColors} from '../../../utils/consts';
-import {setSearchValue} from '../../../store/reducers/FilterSlice';
+import {setSearchValue} from '../../../state/reducers/FilterSlice';
 import AppInput from '../../ui/inputs/AppInput';
 
 type Props = {

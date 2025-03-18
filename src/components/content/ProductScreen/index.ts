@@ -1,4 +1,4 @@
-import ProductContent from "./ProductContent";
-import ProductGoBack from "./ProductGoBack";
+import ProductContent from './ProductContent';
+import ProductGoBack from './ProductGoBack';
 
 export {ProductGoBack, ProductContent};

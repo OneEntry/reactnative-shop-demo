@@ -1,8 +1,8 @@
 import React, {memo} from 'react';
 import {Image, View} from 'react-native';
 import {Paragraph} from '../../ui/texts/Paragraph';
-import {useAppSelector} from '../../../store/hooks';
-import CustomImage from "../../ui/templates/CustomImage";
+import {useAppSelector} from '../../../state/hooks';
+import CustomImage from '../../ui/templates/CustomImage';
 
 type Props = {};
 

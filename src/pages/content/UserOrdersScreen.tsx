@@ -1,6 +1,6 @@
 import React, {useContext} from 'react';
 import {NavigationProps} from '../../navigation/types/types';
-import {AuthContext} from '../../providers/AuthContext';
+import {AuthContext} from '../../state/contexts/AuthContext';
 import UnauthorizedBlock from '../../components/shared/UnauthorizedBlock';
 import {UserOrdersList} from '../../components/content/UserOrdersScreen';
 

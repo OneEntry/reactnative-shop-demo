@@ -3,13 +3,13 @@ import {
   DrawerContentScrollView,
   DrawerItem,
 } from '@react-navigation/drawer';
-import {Dimensions, Image, View} from 'react-native';
+import {Image, View} from 'react-native';
 import React, {useContext, useEffect, useState} from 'react';
-import {LanguageContext} from '../../providers/LanguageContext';
+import {LanguageContext} from '../../state/contexts/LanguageContext';
 import CustomDropdown from './CustomDropdown';
-import {OpenDrawerContext} from '../../providers/OpenDrawerContext';
+import {OpenDrawerContext} from '../../state/contexts/OpenDrawerContext';
 import {styleColors} from '../../utils/consts';
-import {useAppSelector} from '../../store/hooks';
+import {useAppSelector} from '../../state/hooks';
 import {DrawerActions} from '@react-navigation/native';
 import {DIcon} from './DIcon';
 import Footer from '../../components/ui/space/Footer';
@@ -21,19 +21,29 @@ import {useGetMenuQuery} from '../../api/api/RTKApi';
 
 type NestedPage = IMenusPages & {children?: IMenusPages[]};
 
+/**
+ * Creates a nested array from flat menu data.
+ *
+ * @param {IMenusPages[]} objects - Array of menu objects.
+ * @param {null | number} parentId - Parent ID for the current level.
+ * @returns {NestedPage[]} - Nested array of menu objects.
+ */
 export const createNestedArray = (
   objects: IMenusPages[],
   parentId: null | number = null,
 ): NestedPage[] => {
   const nestedArray: NestedPage[] = [];
   objects.map((object: any) => {
+    // Check if the current object's parentId matches the specified parent ID
     if (object.parentId === parentId) {
+      // Create array of current page children
       const nestedChildren: NestedPage[] = createNestedArray(
         objects,
         object.id,
       );
+
       if (nestedChildren.length) {
-        object.children = nestedChildren;
+        return nestedArray.push({...object, children: nestedChildren});
       }
       nestedArray.push(object);
     }
@@ -41,30 +51,16 @@ export const createNestedArray = (
   return nestedArray;
 };
 
-const SubPage = ({page}: {page: IMenusPages}) => {
-  const {setActive, active} = useContext(OpenDrawerContext);
-
-  return (
-    <DrawerItem
-      style={{paddingLeft: 60, width: 200}}
-      focused={active === page.pageUrl}
-      activeBackgroundColor={'rgba(236, 114, 43, 0.05)'}
-      activeTintColor={styleColors.background}
-      // @ts-ignore
-      label={page?.localizeInfos?.menuTitle || 'no localization'}
-      onPress={() => {
-        setActive(page.pageUrl);
-        navigate(page?.pageUrl, {
-          pageUrl: page?.pageUrl,
-          title: page?.pageUrl,
-        });
-      }}
-      key={page?.pageUrl}
-    />
-  );
-};
-
-export function CustomDrawerContent(props: DrawerContentComponentProps) {
+/**
+ * CustomDrawerContent component represents the custom drawer(sidebar) for navigation.
+ * It dynamically generates drawer items based on the menu data.
+ *
+ * @param {DrawerContentComponentProps} props - Component props.
+ * @returns {React.ReactElement} - Rendered component.
+ */
+export function CustomDrawerContent(
+  props: DrawerContentComponentProps,
+): React.ReactElement {
   const {navigation} = props;
   const {
     data: menu,
@@ -78,6 +74,7 @@ export function CustomDrawerContent(props: DrawerContentComponentProps) {
   );
   const {setActive, active} = useContext(OpenDrawerContext);
 
+  // Create nested pages array from flat menu data
   useEffect(() => {
     if (menu) {
       setNestedPages(createNestedArray(menu?.pages as IMenusPages[]));
@@ -93,6 +90,7 @@ export function CustomDrawerContent(props: DrawerContentComponentProps) {
       {loading && <FlexLoader />}
       {nestedPages && (
         <>
+          {/* Logo section */}
           <View style={{padding: 15, paddingBottom: 40}}>
             {logo && (
               <Image
@@ -107,6 +105,8 @@ export function CustomDrawerContent(props: DrawerContentComponentProps) {
               'absolute right-0 top-0 items-center justify-center h-screen'
             }
           />
+
+          {/* Drawer items */}
           {nestedPages.map((page, index) => (
             <View key={index}>
               <DrawerItem
@@ -135,6 +135,7 @@ export function CustomDrawerContent(props: DrawerContentComponentProps) {
                 })}
             </View>
           ))}
+
           <View style={{width: 150}}>
             {languagesData && <CustomDropdown data={languagesData} />}
           </View>
@@ -144,3 +145,33 @@ export function CustomDrawerContent(props: DrawerContentComponentProps) {
     </DrawerContentScrollView>
   );
 }
+
+/**
+ * SubPage component renders a nested page item in the drawer.
+ *
+ * @param {Object} props - Component props.
+ * @param {IMenusPages} props.page - The page object to render.
+ * @returns {React.ReactElement} - Rendered component.
+ */
+const SubPage = ({page}: {page: IMenusPages}) => {
+  const {setActive, active} = useContext(OpenDrawerContext);
+
+  return (
+    <DrawerItem
+      style={{paddingLeft: 60, width: 200}}
+      focused={active === page.pageUrl}
+      activeBackgroundColor={'rgba(236, 114, 43, 0.05)'}
+      activeTintColor={styleColors.background}
+      // @ts-ignore
+      label={page?.localizeInfos?.menuTitle || 'no localization'}
+      onPress={() => {
+        setActive(page.pageUrl);
+        navigate(page?.pageUrl, {
+          pageUrl: page?.pageUrl,
+          title: page?.pageUrl,
+        });
+      }}
+      key={page?.pageUrl}
+    />
+  );
+};

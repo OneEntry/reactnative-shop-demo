@@ -2,8 +2,8 @@ import {ActivityIndicator, StyleSheet, TextInput, View} from 'react-native';
 import {ROUNDED_RADIUS, styleColors} from '../../../utils/consts';
 import SearchIcon from '../../../assets/icons/search-icon.svg';
 import {Dispatch} from 'react';
-import {useAppDispatch} from '../../../store/hooks';
-import {setSearchValue} from '../../../store/reducers/FilterSlice';
+import {useAppDispatch} from '../../../state/hooks';
+import {setSearchValue} from '../../../state/reducers/FilterSlice';
 
 type SearchBarProps = {
   value: string;

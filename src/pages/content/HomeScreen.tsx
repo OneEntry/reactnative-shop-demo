@@ -8,7 +8,6 @@ import Animated, {
   useAnimatedScrollHandler,
   useSharedValue,
 } from 'react-native-reanimated';
-import Skeleton from 'react-native-reanimated-skeleton';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import ErrorBlock from '../../components/shared/ErrorBlock';
 import {
@@ -18,6 +17,7 @@ import {
   useHomeBlocks,
   VerticalOffersBlock,
 } from '../../components/content/HomeScreen';
+import Skeleton from '../../components/shared/Skeleton';
 
 export const HomeScreen: React.FC<NavigationProps> = ({route}) => {
   const [refreshing, setRefreshing] = React.useState(false);
@@ -61,13 +61,7 @@ export const HomeScreen: React.FC<NavigationProps> = ({route}) => {
 
   return (
     <View>
-      <Skeleton
-        isLoading={!banner}
-        containerStyle={{height: isLoading ? 220 + top : 0}}
-        layout={[
-          {key: 'banner', width: '100%', height: isLoading ? 220 + top : 0},
-        ]}
-      />
+      <Skeleton isLoading={!banner} height={isLoading ? 220 + top : 0} />
       {banner && <HomeBanner scrollY={scrollY} banner={banner} />}
       <Screen white>
         <Animated.ScrollView
@@ -78,16 +72,7 @@ export const HomeScreen: React.FC<NavigationProps> = ({route}) => {
           }
           showsVerticalScrollIndicator={false}
           className={''}>
-          <Skeleton
-            isLoading={isLoading}
-            containerStyle={{height: 260, width: '100%', marginTop: 20}}
-            layout={[
-              {
-                key: 'banner',
-                width: '100%',
-                height: 260,
-              },
-            ]}>
+          <Skeleton isLoading={isLoading} height={260} style={{marginTop: 20}}>
             <HorizontalOffersBlock products={horizontal} />
           </Skeleton>
           <HomeBadges

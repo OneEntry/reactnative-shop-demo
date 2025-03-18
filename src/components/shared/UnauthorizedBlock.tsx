@@ -14,7 +14,11 @@ const UnauthorizedBlock: React.FC<Props> = ({page}) => {
     navigateAuth('auth_home');
   };
   return (
-    <Screen isFull className={'gap-8 justify-center'} white edges={['top', 'horizontal']}>
+    <Screen
+      isFull
+      className={'gap-8 justify-center'}
+      white
+      edges={['top', 'horizontal']}>
       <Paragraph size={56} weight={'bold'}>
         {page?.attributeValues?.error_title?.value}
       </Paragraph>

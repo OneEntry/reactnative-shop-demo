@@ -3,16 +3,14 @@ import {Paragraph} from '../ui/texts/Paragraph';
 import React, {useEffect, useState} from 'react';
 import {useAppNavigation} from '../../navigation/types/types';
 import {IProductsEntity} from 'oneentry/dist/products/productsInterfaces';
-import {useAppSelector} from '../../store/hooks';
-import {selectCartItemWithIdLength} from '../../store/reducers/CartSlice';
+import {useAppSelector} from '../../state/hooks';
 import PriceString from '../ui/texts/PriceString';
 import {layoutWidth} from '../../utils/consts';
 import CustomImage from '../ui/templates/CustomImage';
 import FavoritesButton from './FavoritesButton';
 import AddToCartCounter from './AddToCartCounter';
 import AddToCartButton from './AddToCartButton';
-import ShimmerPlaceholder from 'react-native-shimmer-placeholder';
-import LinearGradient from 'react-native-linear-gradient';
+import {getCartItemById} from '../../state/reducers/userStateSlice';
 
 type FeaturedObjectType = {
   product: IProductsEntity;
@@ -23,16 +21,12 @@ type FeaturedObjectType = {
 
 export const FeaturedObjectItem = ({
   product,
-  loading,
   perRow = 2,
   inner,
 }: FeaturedObjectType) => {
   const [attributes, setAttributes] = useState(product.attributeValues);
-  const items = useAppSelector(state =>
-    selectCartItemWithIdLength(state, product.id),
-  );
+  const items = useAppSelector(state => getCartItemById(state, product.id));
   const navigation = useAppNavigation();
-  // console.log(product?.statusIdentifier);
 
   const productCurrency = product?.attributeValues?.currency?.value;
 
@@ -53,13 +47,7 @@ export const FeaturedObjectItem = ({
   };
 
   return (
-    <ShimmerPlaceholder
-      height={perRow > 1 ? 265 : 162}
-      style={{borderRadius: 15}}
-      LinearGradient={LinearGradient}
-      width={perRow > 1 ? (layoutWidth - 10) / 2 : layoutWidth}
-      visible={!loading}
-      >
+    <View>
       <TouchableOpacity
         style={{width: perRow > 1 ? (layoutWidth - 10) / 2 : '100%'}}
         className={
@@ -112,7 +100,11 @@ export const FeaturedObjectItem = ({
             sale={product?.attributeValues?.sale?.value}
           />
           {items ? (
-            <AddToCartCounter id={product.id} quantity={items} />
+            <AddToCartCounter
+              id={product.id}
+              quantity={items.quantity}
+              isZeroValue={true}
+            />
           ) : (
             <AddToCartButton
               size={'small'}
@@ -123,6 +115,6 @@ export const FeaturedObjectItem = ({
           )}
         </View>
       </TouchableOpacity>
-    </ShimmerPlaceholder>
+    </View>
   );
 };

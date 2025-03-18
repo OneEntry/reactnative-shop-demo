@@ -1,12 +1,9 @@
-import React, {memo, useContext} from 'react';
+import React, {memo} from 'react';
 import {styleColors} from '../../../utils/consts';
-import {logOutUser} from '../../../api';
 import {Button} from '../../ui/buttons/Button';
 import {ViewStyle} from 'react-native';
-import {AuthContext} from '../../../providers/AuthContext';
-import {useAppDispatch, useAppSelector} from '../../../store/hooks';
-import {removeAllProductsFromCart} from '../../../store/reducers/CartSlice';
-import {removeAllFavorites} from '../../../store/reducers/FavoritesSlice';
+import { useAuth } from "../../../state/contexts/AuthContext";
+import {useAppSelector} from '../../../state/hooks';
 
 type Props = {
   provider?: string;
@@ -14,23 +11,10 @@ type Props = {
 };
 
 const LogOutButton: React.FC<Props> = ({provider, style}) => {
-  const {authenticate} = useContext(AuthContext);
+  const {logOutUser} = useAuth();
   const logOutText = useAppSelector(
     state => state.systemContentReducer.content.log_out_button,
   );
-  const dispatch = useAppDispatch();
-
-  const onLogout = async () => {
-    if (!provider) {
-      return;
-    }
-    const res = await logOutUser({marker: provider});
-    if (!res.error) {
-      authenticate();
-      dispatch(removeAllProductsFromCart());
-      dispatch(removeAllFavorites());
-    }
-  };
 
   if (!provider) {
     return <></>;
@@ -45,7 +29,7 @@ const LogOutButton: React.FC<Props> = ({provider, style}) => {
         weight: 'bold',
         size: 16,
       }}
-      onPress={onLogout}>
+      onPress={logOutUser}>
       {logOutText}
     </Button>
   );

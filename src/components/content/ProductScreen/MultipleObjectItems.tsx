@@ -2,7 +2,7 @@ import React, {useContext} from 'react';
 import {StyleSheet, View} from 'react-native';
 import MultipleProductItem from './MultipleProductItem';
 import {Paragraph} from '../../ui/texts/Paragraph';
-import {LanguageContext} from '../../../providers/LanguageContext';
+import {LanguageContext} from '../../../state/contexts/LanguageContext';
 import {IProductBlock} from 'oneentry/dist/products/productsInterfaces';
 
 interface Props {

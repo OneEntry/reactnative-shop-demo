@@ -2,12 +2,12 @@ import React from 'react';
 import {ScrollView, View} from 'react-native';
 import {Paragraph} from '../../ui/texts/Paragraph';
 import {RouteProp, useRoute} from '@react-navigation/native';
-import {useAppSelector} from '../../../store/hooks';
+import {useAppSelector} from '../../../state/hooks';
 import {DrawerStackNavigatorParamList} from '../../../navigation';
 import {Button} from '../../ui/buttons/Button';
 import Footer from '../../ui/space/Footer';
 import CustomImage from '../../ui/templates/CustomImage';
-import {api} from '../../../api';
+import {defineApi} from '../../../api';
 import {IOrderByMarkerEntity} from 'oneentry/dist/orders/ordersInterfaces';
 import {navigate} from '../../../navigation/utils/NavigatonRef';
 import {IError} from 'oneentry/dist/base/utils';
@@ -16,6 +16,12 @@ type Props = {
   orderProps?: IOrderByMarkerEntity;
 };
 
+/**
+ * CreatedOrdersDetails component displays the details of a created order.
+ *
+ * @param {Props} props - Component props.
+ * @returns {React.ReactElement} - Rendered component.
+ */
 const CreatedOrdersDetails: React.FC<Props> = ({orderProps}) => {
   const {
     params: {order: orderParams},
@@ -31,7 +37,11 @@ const CreatedOrdersDetails: React.FC<Props> = ({orderProps}) => {
     order_info_address_placeholder,
   } = useAppSelector(state => state.systemContentReducer.content);
 
-  // Function to handle the payment process
+  /**
+   * Handles the payment process.
+   * Updates the order to use 'stripe' as the payment account if necessary,
+   * creates a payment session, and navigates to the payment method screen.
+   */
   const goToPay = async () => {
     try {
       // If the payment account is not 'stripe', update the order with 'stripe' as the payment account
@@ -42,7 +52,7 @@ const CreatedOrdersDetails: React.FC<Props> = ({orderProps}) => {
             quantity: product.quantity || 1,
           };
         });
-        const result = await api.Orders.updateOrderByMarkerAndId(
+        const result = await defineApi.Orders.updateOrderByMarkerAndId(
           'order',
           order.id,
           {
@@ -59,7 +69,7 @@ const CreatedOrdersDetails: React.FC<Props> = ({orderProps}) => {
       }
 
       // Create a payment session and navigate to the payment method screen
-      const {paymentUrl, id: orderId} = await api.Payments.createSession(
+      const {paymentUrl, id: orderId} = await defineApi.Payments.createSession(
         order.id,
         'session',
       );

@@ -10,12 +10,12 @@ import {TouchableOpacity, View} from 'react-native';
 import Filter from '../../../assets/icons/Filter.svg';
 import {Paragraph} from '../../ui/texts/Paragraph';
 import PopUpMenu from '../../shared/PopUpMenu';
-import {useAppDispatch, useAppSelector} from '../../../store/hooks';
+import {useAppDispatch, useAppSelector} from '../../../state/hooks';
 import {
   addFilter,
   removeFilter,
   setSortFilterActive,
-} from '../../../store/reducers/FilterSlice';
+} from '../../../state/reducers/FilterSlice';
 import {IFilterParams} from 'oneentry/dist/products/productsInterfaces';
 import {IPositionBlock} from 'oneentry/dist/pages/pagesInterfaces';
 import {useGetAttributesByMarker} from '../../../api';
@@ -23,7 +23,7 @@ import {IListTitle} from 'oneentry/dist/attribute-sets/attributeSetsInterfaces';
 import Sort from '../../../assets/icons/Sort.svg';
 import FilterModal from './CatalogFiltersModal';
 import {useGetAttributesByMarkerQuery} from '../../../api/api/RTKApi';
-import { useFocusEffect } from "@react-navigation/native";
+import {useFocusEffect} from '@react-navigation/native';
 
 type PopUpOption = {
   title: string;

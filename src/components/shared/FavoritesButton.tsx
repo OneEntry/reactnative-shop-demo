@@ -1,17 +1,14 @@
-import React, { useContext, useState } from "react";
+import React, {useState} from 'react';
 import Heart from '../../assets/icons/Heart.svg';
 import HeartOutline from '../../assets/icons/HeartOutline.svg';
 import {ActivityIndicator, TouchableOpacity} from 'react-native';
-import {updateUserState} from '../../api/utils/updateUserState';
-import {api} from '../../api';
-import {useAppDispatch, useAppSelector} from '../../store/hooks';
+import {defineApi} from '../../api';
+import {useAppDispatch, useAppSelector} from '../../state/hooks';
+import {useAuth} from '../../state/contexts/AuthContext';
 import {
-  addFavorite,
-  removeFavorite,
-  selectIsFavorites,
-} from '../../store/reducers/FavoritesSlice';
-import { IError } from "oneentry/dist/base/utils";
-import { AuthContext } from "../../providers/AuthContext";
+  checkFavoritesItemById,
+  toggleFavorite,
+} from '../../state/reducers/userStateSlice';
 
 type Props = {
   id: number;
@@ -23,50 +20,24 @@ const sizes = {
   xl: 24,
 };
 
-//make prop isFavorites and take this state from 1 component to avoid maps in every card
 const FavoritesButton: React.FC<Props> = ({id, size = 'md'}) => {
-  const favorites = useAppSelector(state => state.favoritesReducer.products);
-  const isFavorites = useAppSelector(state => selectIsFavorites(state, id));
+  const isFavorites = useAppSelector(state =>
+    checkFavoritesItemById(state, id),
+  );
   const [loading, setLoading] = useState<boolean>(false);
-  const products = useAppSelector(state => state.cartReducer.products);
   const dispatch = useAppDispatch();
-  const {user} = useContext(AuthContext);
+  const {user} = useAuth();
 
   const onAddFavorites = async () => {
     setLoading(true);
     try {
-      if (!isFavorites) {
-        await api.Events.subscribeByMarker('catalog_event', id);
-        await api.Events.subscribeByMarker('status_out_of_stock', id);
-        await api.Events.subscribeByMarker('product_price', id);
-        const updatedFavorites = [...favorites, id];
-        const res = await updateUserState({
-          favorites: updatedFavorites,
-          cart: products.map(product => {
-            return {
-              id: product.id,
-              quantity: product.quantity,
-            };
-          }),
-        });
-        if (res || !user) {
-          dispatch(addFavorite(id));
-        }
-      } else {
-        await api.Events.unsubscribeByMarker('product_price', id, 'en_US');
-        await api.Events.unsubscribeByMarker('catalog_event', id, 'en_US');
-        await api.Events.unsubscribeByMarker(
-          'status_out_of_stock',
-          id,
-          'en_US',
-        );
-        const updatedFavorites = favorites.filter(favorite => favorite !== id);
+      dispatch(toggleFavorite(id));
 
-        const res = await updateUserState({
-          favorites: updatedFavorites,
-        });
-        if (res || !user) {
-          dispatch(removeFavorite(id));
+      if (user) {
+        if (!isFavorites) {
+          await defineApi.Events.subscribeByMarker('product_status_in_stock', id);
+        } else {
+          await defineApi.Events.unsubscribeByMarker('product_status_in_stock', id);
         }
       }
     } catch (e) {

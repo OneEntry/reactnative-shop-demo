@@ -1,44 +1,45 @@
-import React, {useContext} from 'react';
-import {api, logOutUser} from '../../../api';
-import {AuthContext} from '../../../providers/AuthContext';
-import {TouchableOpacity} from 'react-native';
+import React, { useState} from 'react';
+import {defineApi} from '../../../api';
+import {useAuth } from "../../../state/contexts/AuthContext";
+import {ActivityIndicator, TouchableOpacity, View} from 'react-native';
 import {Paragraph} from '../../ui/texts/Paragraph';
-import { useAppDispatch } from "../../../store/hooks";
-import { removeAllProductsFromCart } from "../../../store/reducers/CartSlice";
-import { removeAllFavorites } from "../../../store/reducers/FavoritesSlice";
 
 type Props = {};
 
 const RemoveUserButton: React.FC<Props> = ({}) => {
-  const {authenticate, user} = useContext(AuthContext);
-  const dispatch = useAppDispatch();
+  const {authenticate, user, logOutUser} = useAuth();
+  const [isLoading, setIsLoading] = useState<boolean>(false);
 
   const removeUser = async () => {
     try {
-      const form = await api.FormData.postFormsData({
-        formIdentifier: 'remove_user',
-        formData: [
-          {
-            marker: 'email',
-            type: 'string',
-            value: user?.identifier,
-          },
-        ],
-      });
-      const res = await logOutUser({marker: 'email'});
+      setIsLoading(true);
+      const form = await defineApi.Users.deleteUser();
+      const res = logOutUser();
       if (!res.error) {
-        dispatch(removeAllProductsFromCart());
-        dispatch(removeAllFavorites());
         authenticate();
       }
+      setIsLoading(false);
     } catch (e) {
       console.log(e);
+      setIsLoading(false);
     }
   };
 
+  if (isLoading) {
+    return (
+      <View className={'w-full items-center mb-4 justify-start'}>
+        <ActivityIndicator size={'small'} color={'black'} />
+      </View>
+    );
+  }
+
   return (
-    <TouchableOpacity onPress={removeUser} className={'w-full items-center justify-center'}>
-      <Paragraph size={20} color={'red'}>Remove user</Paragraph>
+    <TouchableOpacity
+      onPress={removeUser}
+      className={'w-full items-center mb-4 justify-start'}>
+      <Paragraph size={20} color={'red'}>
+        Remove user
+      </Paragraph>
     </TouchableOpacity>
   );
 };

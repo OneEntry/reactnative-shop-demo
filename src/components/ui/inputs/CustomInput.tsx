@@ -1,4 +1,4 @@
-import React, { FunctionComponent, memo } from "react";
+import React, {FunctionComponent, memo} from 'react';
 import {
   StyleSheet,
   TextInput,

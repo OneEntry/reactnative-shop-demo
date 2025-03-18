@@ -1,7 +1,7 @@
 import React, {memo} from 'react';
-import {StyleSheet, TouchableOpacity, View} from 'react-native';
+import {StyleSheet, TouchableOpacity} from 'react-native';
 import {styleColors} from '../../../utils/consts';
-import {useNavigateProducts} from '../../../utils/hooks';
+import {useNavigateProducts} from '../../../hooks/shared/useNavigateProducts';
 
 interface Props {
   children: React.ReactNode;

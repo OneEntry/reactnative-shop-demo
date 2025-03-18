@@ -1,18 +1,11 @@
-import React, {
-  Dispatch,
-  memo,
-  useContext,
-  useEffect,
-  useRef,
-  useState,
-} from 'react';
+import React, {Dispatch, memo, useEffect, useRef, useState} from 'react';
 import {Alert, TextInput, View} from 'react-native';
 import {Button} from '../../ui/buttons/Button';
 import LogOutButton from './LogOutButton';
-import {useAppSelector} from '../../../store/hooks';
-import {AuthContext} from '../../../providers/AuthContext';
+import {useAppSelector} from '../../../state/hooks';
+import {useAuth} from '../../../state/contexts/AuthContext';
 import {IAuthFormData} from 'oneentry/dist/auth-provider/authProvidersInterfaces';
-import {api} from '../../../api';
+import {defineApi} from '../../../api';
 import NormalInput from '../../shared/NormalInput';
 import {InputValue} from '../../ui/inputs/AppInput';
 import {IError} from 'oneentry/dist/base/utils';
@@ -24,6 +17,14 @@ type Props = {
   setEditing: Dispatch<boolean>;
 };
 
+
+/**
+ * UpdateUserForm component allows users to edit their profile information.
+ * It supports updating name, phone, and address fields.
+ *
+ * @param {Props} props - Component props.
+ * @returns {React.ReactElement} - Rendered component.
+ */
 const UpdateUserForm: React.FC<Props> = ({editing, setEditing}) => {
   const {user_name_placeholder, user_phone_placeholder} = useAppSelector(
     state => state.systemContentReducer.content,
@@ -31,14 +32,18 @@ const UpdateUserForm: React.FC<Props> = ({editing, setEditing}) => {
   const [nameValue, setNameValue] = useState<string>('');
   const [phoneValue, setPhoneValue] = useState<string>('');
   const [addressValue, setAddressValue] = useState<string>('');
-  const {user, refreshUser} = useContext(AuthContext);
+  const {user, authenticate} = useAuth();
   const usernameRef = useRef<TextInput>(null);
   const phoneRef = useRef<TextInput>(null);
   const addressRef = useRef<TextInput>(null);
 
+  /**
+   * Handles updating user data.
+   * Transforms input data into the required format and sends it to the API.
+   */
   const onUpdateUserData = async () => {
     try {
-      //Transform data to IAuthFormData
+      // Transform input data into IAuthFormData format
       const formData: IAuthFormData[] = [];
 
       if (nameValue) {
@@ -66,7 +71,7 @@ const UpdateUserForm: React.FC<Props> = ({editing, setEditing}) => {
       }
 
       if (user?.formIdentifier) {
-        const res = await api.Users.updateUser({
+        const res = await defineApi.Users.updateUser({
           formIdentifier: user.formIdentifier,
           formData,
         });
@@ -79,21 +84,23 @@ const UpdateUserForm: React.FC<Props> = ({editing, setEditing}) => {
       usernameRef.current?.blur();
       phoneRef.current?.blur();
       addressRef.current?.blur();
-      refreshUser();
+      authenticate();
       setEditing(!editing);
     } catch (e: any) {
       Alert.alert(e.message);
       console.error(e);
-      refreshUser();
+      authenticate();
     }
   };
 
+  /**
+   * Fills input fields with existing user data when the component mounts.
+   */
   useEffect(() => {
     // @ts-ignore
     const fields = user?.formData;
-    //Fill inputs with user data
     if (fields) {
-      fields.map((item) => {
+      fields.map(item => {
         if (item.marker === 'phone_reg') {
           setPhoneValue(item.value);
         }

@@ -1,7 +1,7 @@
-import React, {useContext} from 'react';
+import React from 'react';
 import {NavigationProps} from '../../navigation/types/types';
 import {Screen} from '../../components/ui/templates/Screen';
-import {AuthContext} from '../../providers/AuthContext';
+import {useAuth} from '../../state/contexts/AuthContext';
 import {
   ProfileHeader,
   ProfileContent,
@@ -10,10 +10,14 @@ import {
 import UnauthorizedBlock from '../../components/shared/UnauthorizedBlock';
 
 const ProfileScreen: React.FC<NavigationProps> = ({}) => {
-  const {errorPage, user} = useContext(AuthContext);
+  const {errorPage, user} = useAuth();
   const [editing, setEditing] = React.useState<boolean>(false);
   if (errorPage && !user) {
     return <UnauthorizedBlock page={errorPage} />;
+  }
+
+  if (!user) {
+    return null;
   }
 
   return (

@@ -2,12 +2,12 @@ import React, {memo} from 'react';
 import {KeyboardAvoidingView, StyleSheet, TextInput, View} from 'react-native';
 import {styleColors} from '../../../utils/consts';
 import {Paragraph} from '../texts/Paragraph';
-import {useAppDispatch, useAppSelector} from '../../../store/hooks';
+import {useAppDispatch, useAppSelector} from '../../../state/hooks';
 import {
   addFilter,
   removeFilter,
   setPriceFilterActive,
-} from '../../../store/reducers/FilterSlice';
+} from '../../../state/reducers/FilterSlice';
 import {IFilterParams} from 'oneentry/dist/products/productsInterfaces';
 
 interface Props {

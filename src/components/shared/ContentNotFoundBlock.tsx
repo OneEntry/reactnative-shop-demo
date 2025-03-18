@@ -1,7 +1,7 @@
 import React, {memo} from 'react';
 import {StyleSheet, View, ViewProps} from 'react-native';
 import {Paragraph} from '../ui/texts/Paragraph';
-import {useAppSelector} from '../../store/hooks';
+import {useAppSelector} from '../../state/hooks';
 
 type Props = {
   loading?: boolean;

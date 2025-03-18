@@ -1,23 +1,16 @@
 import {BadgeList} from '../../shared/Badges';
-import {
-  Dispatch,
-  memo,
-  useEffect,
-  useLayoutEffect,
-  useMemo,
-  useState,
-} from 'react';
+import {Dispatch, memo, useEffect, useMemo, useState} from 'react';
 import {IFilterParams} from 'oneentry/dist/products/productsInterfaces';
 import {Screen} from '../../ui/templates/Screen';
-import {useAppDispatch, useAppSelector} from '../../../store/hooks';
+import {useAppDispatch, useAppSelector} from '../../../state/hooks';
 import {
   addFilter,
   removeAllFilters,
   removeFilter,
   setBadgeFilterActive,
-} from '../../../store/reducers/FilterSlice';
-import Skeleton from 'react-native-reanimated-skeleton';
+} from '../../../state/reducers/FilterSlice';
 import {useGetAttributesByMarkerQuery} from '../../../api/api/RTKApi';
+import Skeleton from '../../shared/Skeleton';
 
 type Props = {
   setSortOption: Dispatch<'low' | 'high' | undefined>;
@@ -80,8 +73,8 @@ export const CatalogBadges = memo(({setSortOption, refreshing}: Props) => {
   }, [attributes]);
 
   const tBadges = useMemo(() => {
-    return attributes?.reduce((arr: TBadge[], attribute) => {
-      const filter: TBadge = {
+    return attributes?.reduce((arr: any[], attribute) => {
+      const filter: any = {
         label: attribute?.localizeInfos?.title || '',
         value: attribute?.localizeInfos?.title || '',
       };
@@ -113,11 +106,7 @@ export const CatalogBadges = memo(({setSortOption, refreshing}: Props) => {
 
   if (isLoading) {
     return (
-      <Skeleton
-        isLoading={isLoading}
-        containerStyle={{marginTop: 20}}
-        layout={[{key: 'badges', width: '100%', height: 22}]}
-      />
+      <Skeleton isLoading={isLoading} style={{marginTop: 20}} height={22} />
     );
   }
 

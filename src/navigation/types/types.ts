@@ -1,6 +1,4 @@
-import {
-  useNavigation,
-} from '@react-navigation/native';
+import {useNavigation} from '@react-navigation/native';
 import {
   DrawerNavigationProp,
   DrawerScreenProps,

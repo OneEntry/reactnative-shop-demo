@@ -40,8 +40,8 @@ export const Screen = (props: ScreenProps) => {
           ? top + 10
           : undefined
         : edges?.includes('top')
-        ? top
-        : undefined,
+          ? top
+          : undefined,
     paddingLeft: edges?.includes('horizontal') ? layoutPadding : undefined,
     paddingRight: edges?.includes('horizontal') ? layoutPadding : undefined,
     flex: isFlex ? 1 : undefined,
@@ -52,8 +52,7 @@ export const Screen = (props: ScreenProps) => {
   if (isHideKeyboard) {
     return (
       <TouchableWithoutFeedback
-        onPress={() => isHideKeyboard && Keyboard.dismiss()}
-      >
+        onPress={() => isHideKeyboard && Keyboard.dismiss()}>
         <View style={[styles, style]} {...rest}>
           {children}
         </View>

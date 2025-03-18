@@ -1,5 +1,5 @@
 import React, {memo, useEffect, useRef} from 'react';
-import { Animated } from 'react-native';
+import {Animated} from 'react-native';
 
 type Props = {};
 
@@ -22,9 +22,7 @@ const SkeletonWrapper: React.FC<Props> = ({}) => {
       ]),
     ).start();
   }, [skeletonOpacity]);
-  return <Animated.View>
-
-  </Animated.View>;
+  return <Animated.View></Animated.View>;
 };
 
 export default memo(SkeletonWrapper);

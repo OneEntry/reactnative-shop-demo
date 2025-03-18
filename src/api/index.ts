@@ -1,7 +1,6 @@
 export {useGetForm} from './hooks/useGetForm';
-export {useGetProducts} from './hooks/useGetProducts';
 
-export {api, reDefine} from './api/api';
+export {defineApi, reDefine} from './api/defineApi';
 
 export {logInUser, logOutUser} from './utils/logInUser';
 

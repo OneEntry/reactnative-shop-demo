@@ -1,8 +1,8 @@
 import React, {memo} from 'react';
-import { View} from 'react-native';
+import {View} from 'react-native';
 import {styleColors} from '../../../utils/consts';
 import {Paragraph} from '../../ui/texts/Paragraph';
-import {useAppSelector} from '../../../store/hooks';
+import {useAppSelector} from '../../../state/hooks';
 
 interface Props {
   full: number;

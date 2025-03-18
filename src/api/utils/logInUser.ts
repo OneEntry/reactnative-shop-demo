@@ -1,4 +1,4 @@
-import {api} from '../api/api';
+import {defineApi} from '../api/defineApi';
 import {IAuthPostBody} from 'oneentry/dist/auth-provider/authProvidersInterfaces';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {IError} from 'oneentry/dist/base/utils';
@@ -7,23 +7,7 @@ type LogInProps = {method: string; login: string; password: string};
 
 export const logInUser = async ({method, login, password}: LogInProps) => {
   try {
-    const preparedData: IAuthPostBody = {
-      authData: [
-        {
-          marker: 'email_reg',
-          value: login,
-        },
-        {
-          marker: 'password_reg',
-          value: password,
-        },
-      ],
-    };
-    const result = await api.AuthProvider.auth(method, preparedData);
 
-    if ((result as IError)?.statusCode >= 400) {
-      throw new Error((result as IError)?.message);
-    }
 
     if (result?.accessToken) {
       return {data: result};
@@ -40,7 +24,7 @@ export const logOutUser = async ({marker}: LogOutProps) => {
     if (!token) {
       throw Error('No token provided');
     }
-    const result = await api.AuthProvider.logout(marker, token);
+    const result = await defineApi.AuthProvider.logout(marker, token);
     if ((result as IError)?.statusCode >= 400) {
       throw new Error((result as IError)?.message);
     }

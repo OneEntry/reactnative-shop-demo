@@ -1,4 +1,4 @@
-import React, { memo } from "react";
+import React, {memo} from 'react';
 import {Image, ImageSourcePropType, StyleSheet, View} from 'react-native';
 
 type Props = {

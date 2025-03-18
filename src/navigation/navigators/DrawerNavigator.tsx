@@ -19,10 +19,10 @@ import UserOrdersScreen from '../../pages/content/UserOrdersScreen';
 import ContactUsScreen from '../../pages/content/ContactUsScreen';
 import ContentNotVisible from '../../pages/content/ContentNotVisibleScreen';
 import {StackNavigator} from './StackNavigator';
-import OrderScreen from '../../pages/content/OrderScreen';
+import PrepareOrderScreen from '../../pages/content/PrepareOrderScreen';
 import {DrawerStackNavigatorParamList} from '../types/DrawerStackNavigatorParamList';
 import PaymentPayScreen from '../../pages/content/PaymentPayScreen';
-import PaymentSelectionScreen from '../../pages/content/PaymentSelectionScreen';
+import CreateOrderScreen from '../../pages/content/CreateOrderScreen';
 import OrderDetailsScreen from '../../pages/content/OrderDetailsScreen';
 import ReviewsScreen from '../../pages/content/ReviewsScreen';
 import ErrorBlock from '../../components/shared/ErrorBlock';
@@ -47,21 +47,30 @@ const dynamicScreens: ScreenTypes = {
   profile: ProfileScreen,
   orders: UserOrdersScreen,
   contact_us: ContactUsScreen,
-  place_an_order: OrderScreen,
+  place_an_order: PrepareOrderScreen,
   payment_method: PaymentPayScreen,
   order_details: OrderDetailsScreen,
   message: MessageScreen,
-  payment: PaymentSelectionScreen,
+  payment: CreateOrderScreen,
   null: ContentNotVisible,
 };
 
+/**
+ * DrawerNavigator component manages the "content" navigation structure.
+ * It dynamically generates screens based on the fetched pages data.
+ *
+ * @param {Props} props - Component props.
+ * @returns {React.ReactElement} - Rendered component.
+ */
 const DrawerNavigator: React.FC<Props> = ({}) => {
+  // Fetch all pages data using the RTK query
   const {
     data: pages,
     isLoading: loadingPages,
     error: errorPages,
   } = useGetPagesQuery({});
 
+  // Memoize the titles to display in the drawer
   const showTitle = useMemo(() => {
     return pages
       ? pages?.reduce((arr: string[], page) => {
@@ -128,6 +137,7 @@ const DrawerNavigator: React.FC<Props> = ({}) => {
             backgroundColor: styleColors.white,
           },
         }}>
+        {/* Dynamic Screens */}
         {pages?.map(page => {
           const RenderedScreen = page.templateIdentifier
             ? dynamicScreens[
@@ -177,6 +187,8 @@ const DrawerNavigator: React.FC<Props> = ({}) => {
             );
           }
         })}
+
+        {/* Static Screens */}
         {pages && (
           <>
             <Drawer.Screen name={'Search'} component={SearchScreen} />

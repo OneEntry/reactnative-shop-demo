@@ -5,8 +5,8 @@ import {Button} from '../../ui/buttons/Button';
 import TopSpacerV2 from '../../ui/space/TopSpacerV2';
 import {Screen} from '../../ui/templates/Screen';
 import ModalHeader from './ModalHeader';
-import {useAppDispatch, useAppSelector} from '../../../store/hooks';
-import {removeAllFilters} from '../../../store/reducers/FilterSlice';
+import {useAppDispatch, useAppSelector} from '../../../state/hooks';
+import {removeAllFilters} from '../../../state/reducers/FilterSlice';
 import ColorFilter from './ColorFilter';
 import ResetButton from './ResetButton';
 import AvailabilityFilter from './AvailabilityFilter';
@@ -83,7 +83,7 @@ const CatalogFiltersModal: React.FC<Props> = ({visible, setVisible}) => {
       <ScrollView
         contentContainerStyle={{flexGrow: 1}}
         keyboardShouldPersistTaps="handled"
-        className={'bg-lightGray'}>
+        className={'bg-white'}>
         <Screen>
           <ModalHeader
             onRequestClose={onRequestClose}

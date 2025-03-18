@@ -3,7 +3,7 @@ import {StyleSheet} from 'react-native';
 import {Paragraph} from '../../ui/texts/Paragraph';
 import {Screen} from '../../ui/templates/Screen';
 import {layoutWidth} from '../../../utils/consts';
-import { useAppSelector } from "../../../store/hooks";
+import {useAppSelector} from '../../../state/hooks';
 
 type Props = {
   query: string;

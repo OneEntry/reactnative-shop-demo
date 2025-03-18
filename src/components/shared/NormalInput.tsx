@@ -1,15 +1,13 @@
 import React, {forwardRef, FunctionComponent, useState} from 'react';
 import {StyleSheet, TextInput, TextInputProps, View} from 'react-native';
 import {styleColors} from '../../utils/consts';
-import {IAttributes} from 'oneentry/dist/base/utils';
 import Eye from './assets/PasswordVisible.svg';
 import ClosedEye from './assets/PasswordInvisible.svg';
 import {Paragraph} from '../ui/texts/Paragraph';
-import {useAppSelector} from '../../store/hooks';
+import {useAppSelector} from '../../state/hooks';
 import AppInput, {InputValue} from '../ui/inputs/AppInput';
 
 type Props = {
-  field?: IAttributes;
   isPassword?: boolean;
   value: string;
   title?: string;
@@ -19,12 +17,12 @@ type Props = {
   onPressIcon?: () => void;
   Icon?: FunctionComponent;
   editable?: boolean;
+  validators?: Record<any, any>;
 } & TextInputProps;
 
 const NormalInput = forwardRef<TextInput, Props>(
   (
     {
-      field,
       isPassword,
       value,
       setValue,
@@ -34,6 +32,7 @@ const NormalInput = forwardRef<TextInput, Props>(
       Icon,
       title,
       editable = true,
+      validators,
       ...rest
     },
     ref,
@@ -51,12 +50,12 @@ const NormalInput = forwardRef<TextInput, Props>(
       <View>
         {isTitle && (
           <Paragraph size={14} weight={'400'} color={'border_color'}>
-            {title || field?.localizeInfos?.title}
+            {title}
           </Paragraph>
         )}
         <AppInput
           ref={ref}
-          currentValidators={field?.validators}
+          currentValidators={validators}
           style={styles.input}
           value={value}
           validationErrorMessage={invalid_input_value}
@@ -65,7 +64,7 @@ const NormalInput = forwardRef<TextInput, Props>(
           setValue={setValue}
           autoCapitalize={capitalize}
           editable={editable}
-          placeholder={rest?.placeholder || field?.localizeInfos?.title || ''}
+          placeholder={rest?.placeholder || ''}
           placeholderTextColor={styleColors.lightGray}
           Icon={isPassword ? (visible ? Eye : ClosedEye) : Icon}
           onPressIcon={isPassword ? onReveal : onPressIcon}

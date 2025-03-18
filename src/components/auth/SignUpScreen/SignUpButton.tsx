@@ -1,23 +1,25 @@
-import React, {useContext, useState} from 'react';
-import {useAppDispatch, useAppSelector} from '../../../store/hooks';
-import {navigateAuth} from '../../../navigation/utils/NavigatonRef';
-import {api} from '../../../api';
+import React, {useState} from 'react';
+import {useAppDispatch, useAppSelector} from '../../../state/hooks';
+import {navigate, navigateAuth} from '../../../navigation/utils/NavigatonRef';
 import {Alert, View} from 'react-native';
-import {Button} from '../../ui/buttons/Button';
 import {ISignUpData} from 'oneentry/dist/auth-provider/authProvidersInterfaces';
-import {logInUser} from '../../../api';
-import {AuthContext} from '../../../providers/AuthContext';
-import {IError} from 'oneentry/dist/base/utils';
-import {clearAllFieldsSignUp} from '../../../store/reducers/signUpFieldsReducer';
-import BigButton from "../../shared/BigButton";
+import {
+  signUpUser,
+  useAuth,
+} from '../../../state/contexts/AuthContext';
+import {clearAllFieldsSignUp} from '../../../state/reducers/SignUpFieldsReducer';
+import BigButton from '../../shared/BigButton';
+import Toast from 'react-native-toast-message';
 
 type Props = {};
 
 const SignUpButton: React.FC<Props> = ({}) => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const fields = useAppSelector(state => state.SignUpFieldsReducer.fields);
-  const {sign_up_title} = useAppSelector(state => state.systemContentReducer.content);
-  const {authenticate} = useContext(AuthContext);
+  const {sign_up_title} = useAppSelector(
+    state => state.systemContentReducer.content,
+  );
+  const {authenticate} = useAuth();
   const dispatch = useAppDispatch();
 
   const onSignUp = async () => {
@@ -36,13 +38,16 @@ const SignUpButton: React.FC<Props> = ({}) => {
       // Prepare form data for sign up submission
       const formData = Object.keys(fields).reduce(
         (
-          arr: Array<{
+          arr: {
             marker: string;
             type: string;
             value: string;
-          }>,
+          }[],
           field,
         ) => {
+          if (field === 'password_reg_repeat') {
+            return arr;
+          }
           if (field === 'phone_reg' && fields[field].value.length === 1) {
             return arr;
           }
@@ -80,33 +85,28 @@ const SignUpButton: React.FC<Props> = ({}) => {
         },
       };
       try {
-        const res = await api.AuthProvider.signUp('email', data, 'en_US');
-        if (!res || (res as IError)?.statusCode >= 400) {
-          throw new Error((res as IError).message);
+        const result = await signUpUser(data, fields.password_reg.value);
+
+        if (result.isSuccess) {
+          authenticate();
+          navigate('home');
         }
+        dispatch(clearAllFieldsSignUp());
 
-        //If no activation required, log in user
-        if (res.isActive) {
-          try {
-            await logInUser({
-              method: 'email',
-              login: res.identifier,
-              password: fields.password_reg.value,
-            });
-
-            authenticate();
-          } catch (e: any) {
-            Alert.alert(e.message);
-          }
-        } else {
-          //If activation required, navigate to activation screen
+        if (result.isActivation) {
           navigateAuth('activate_user', {
-            email: res.identifier,
+            email: fields.email_reg.value,
             method: 'email',
             password: fields.password_reg.value,
             event: 'activate',
           });
           dispatch(clearAllFieldsSignUp());
+        }
+        if (result.error) {
+          Toast.show({
+            type: 'error',
+            text1: result.error,
+          });
         }
       } catch (e: any) {
         Alert.alert(e?.message);

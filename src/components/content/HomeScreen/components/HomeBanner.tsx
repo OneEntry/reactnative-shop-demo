@@ -1,10 +1,8 @@
 import React, {memo} from 'react';
-import {Image, ImageBackground, TouchableOpacity, View} from 'react-native';
+import {ImageBackground, TouchableOpacity} from 'react-native';
 import {Screen} from '../../../ui/templates/Screen';
 import {Paragraph} from '../../../ui/texts/Paragraph';
 import {IPositionBlock} from 'oneentry/dist/pages/pagesInterfaces';
-import TopSpacerV2 from '../../../ui/space/TopSpacerV2';
-import ContentNotFoundBlock from '../../../shared/ContentNotFoundBlock';
 import {navigate} from '../../../../navigation/utils/NavigatonRef';
 import Animated, {
   Extrapolation,
@@ -20,7 +18,17 @@ interface Props {
   scrollY: SharedValue<number>;
 }
 
-const HomeBanner: React.FC<Props> = ({banner, scrollY}) => {
+/**
+ * HomeBanner component displays a banner with an image background.
+ * As the user scrolls, the banner transitions into a smaller white header.
+ *
+ * @param {Props} props - Component props.
+ * @returns {React.ReactElement} - Rendered component.
+ */
+const HomeBanner: React.FC<Props> = ({
+  banner,
+  scrollY,
+}: Props): React.ReactElement => {
   const onTextClick = () => {
     navigate('shop');
   };

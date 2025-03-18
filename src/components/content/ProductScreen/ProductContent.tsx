@@ -11,7 +11,7 @@ import ProductOptions from './ProductOptions';
 import Footer from '../../ui/space/Footer';
 import CustomImage from '../../ui/templates/CustomImage';
 import FavoritesButton from '../../shared/FavoritesButton';
-import {OpenDrawerContext} from '../../../providers/OpenDrawerContext';
+import {OpenDrawerContext} from '../../../state/contexts/OpenDrawerContext';
 import {useGetProductByIdQuery} from '../../../api/api/RTKApi';
 import PinnedProductsBlock from './PinnedProductsBlock';
 import Units from './Units';
@@ -21,8 +21,21 @@ type Props = {
   refreshing: boolean;
   setRefreshing: Dispatch<boolean>;
 };
-const ProductContent: React.FC<Props> = ({refreshing, setRefreshing}) => {
+
+/**
+ * ProductContent component displays the details of a product.
+ * It includes the product image, title, rating, price, options, and related features.
+ *
+ * @param {Props} props - Component props.
+ * @returns {React.ReactElement} - Rendered component.
+ */
+const ProductContent: React.FC<Props> = ({
+  refreshing,
+  setRefreshing,
+}: Props): React.ReactElement => {
+  // Get the product ID from the route parameters
   const route = useRoute<RouteProp<any, 'Products'>>();
+
   const {
     data: product,
     isLoading,
@@ -31,6 +44,8 @@ const ProductContent: React.FC<Props> = ({refreshing, setRefreshing}) => {
   } = useGetProductByIdQuery({
     id: route?.params?.id,
   });
+
+  // Context to manage active screen state
   const {setActive} = useContext(OpenDrawerContext);
 
   const insets = useSafeAreaInsets();
@@ -92,6 +107,7 @@ const ProductContent: React.FC<Props> = ({refreshing, setRefreshing}) => {
           </View>
         </View>
 
+        {/* Shows price if product in stock */}
         <ProductStatus
           price={product?.price}
           status={product?.statusIdentifier}
@@ -99,6 +115,7 @@ const ProductContent: React.FC<Props> = ({refreshing, setRefreshing}) => {
           sale={product?.attributeValues?.sale?.value}
         />
 
+        {/*Other variations of this product*/}
         <ProductOptions mainProduct={product} />
 
         <Paragraph size={12} color="lightGray">
@@ -117,11 +134,8 @@ const ProductContent: React.FC<Props> = ({refreshing, setRefreshing}) => {
           </View>
         </View>
 
-        <PinnedProductsBlock
-          refreshing={refreshing}
-          key={product?.id}
-          productRef={product}
-        />
+        {/* Pinned products block */}
+        <PinnedProductsBlock refreshing={refreshing} productId={product?.id} />
 
         <Footer height={10} />
       </View>

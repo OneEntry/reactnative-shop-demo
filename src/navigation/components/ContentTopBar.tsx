@@ -7,7 +7,7 @@ import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import {layoutWidth} from '../../utils/consts';
 import {Paragraph} from '../../components/ui/texts/Paragraph';
 import GoBackButton from '../../components/ui/buttons/GoBackButton';
-import {OpenDrawerContext} from '../../providers/OpenDrawerContext';
+import {OpenDrawerContext} from '../../state/contexts/OpenDrawerContext';
 import {useAppNavigation} from '../types/types';
 import Animated, {interpolate, useAnimatedStyle} from 'react-native-reanimated';
 import {useDrawerProgress} from '@react-navigation/drawer';

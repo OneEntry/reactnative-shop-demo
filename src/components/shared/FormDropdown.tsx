@@ -4,9 +4,9 @@ import {Dropdown} from 'react-native-element-dropdown';
 import {styleColors} from '../../utils/consts';
 import {Paragraph} from '../ui/texts/Paragraph';
 import {InputValue} from '../ui/inputs/AppInput';
-import {useAppDispatch} from '../../store/hooks';
-import {addFieldContactUs} from '../../store/reducers/contactUsFieldsReducer';
-import { DropdownItem } from "../../navigation/components/CustomDropdown";
+import {useAppDispatch} from '../../state/hooks';
+import {addFieldContactUs} from '../../state/reducers/ContactUsFieldsReducer';
+import {DropdownItem} from '../../navigation/components/CustomDropdown';
 
 interface Props {
   data: any;

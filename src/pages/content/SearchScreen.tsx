@@ -1,7 +1,10 @@
 import React, {useLayoutEffect, useState} from 'react';
 import {Keyboard, TouchableWithoutFeedback, View} from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { SearchHeader, SearchHistory } from "../../components/content/SearchScreen";
+import {
+  SearchHeader,
+  SearchHistory,
+} from '../../components/content/SearchScreen';
 
 interface Props {}
 

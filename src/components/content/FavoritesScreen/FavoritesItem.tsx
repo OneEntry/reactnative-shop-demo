@@ -6,41 +6,45 @@ import Trash from '../../../assets/icons/trash.svg';
 import Basket from '../../../assets/icons/basket.svg';
 import Card from '../../ui/cards/Card';
 import {IProductsEntity} from 'oneentry/dist/products/productsInterfaces';
-import {useAppDispatch, useAppSelector} from '../../../store/hooks';
-import {addProductToCart} from '../../../store/reducers/CartSlice';
+import {useAppDispatch} from '../../../state/hooks';
 import Rating from '../../shared/Rating';
 import PriceString from '../../ui/texts/PriceString';
 import CustomImage from '../../ui/templates/CustomImage';
-import {removeFavorite} from '../../../store/reducers/FavoritesSlice';
-import {updateUserState} from '../../../api/utils/updateUserState';
+import {
+  addToCart,
+  toggleFavorite,
+} from '../../../state/reducers/userStateSlice';
 
 interface Props {
   product: IProductsEntity;
 }
 
-const FavoritesItem: React.FC<Props> = ({product}) => {
+/**
+ * FavoritesItem component displays a single favorite product.
+ * It includes options to remove the product from favorites and add it to the cart.
+ *
+ * @param {Props} props - Component props.
+ * @returns {React.ReactElement} - Rendered component.
+ */
+const FavoritesItem: React.FC<Props> = ({
+  product,
+}: Props): React.ReactElement => {
   const dispatch = useAppDispatch();
-  const favorites = useAppSelector(state => state.favoritesReducer.products);
-  const items = useAppSelector(state => state.cartReducer.products);
-  const onTrash = async (isCart?: boolean) => {
-    dispatch(removeFavorite(product.id));
-    const inCart = items.find(item => item.id === product.id);
-    await updateUserState({
-      favorites: [...favorites.filter(fav => fav !== product.id)],
-      cart: [
-        ...items.map(item => {
-          return {
-            id: item.id,
-            quantity: item.quantity,
-          };
-        }),
-        ...(!inCart && isCart ? [{id: product.id, quantity: 1}] : []),
-      ],
-    });
+
+  /**
+   * Handles removing the product from favorites.
+   * Dispatches the toggleFavorite action with the product ID.
+   */
+  const onTrash = async () => {
+    dispatch(toggleFavorite(product.id));
   };
+
+  /**
+   * Handles adding the product to the cart and then removing it from favorites.
+   */
   const onBasket = async () => {
-    dispatch(addProductToCart({id: product.id, quantity: 1}));
-    await onTrash(true);
+    dispatch(addToCart({id: product.id}));
+    await onTrash();
   };
 
   return (
@@ -79,7 +83,7 @@ const FavoritesItem: React.FC<Props> = ({product}) => {
           />
         </View>
         <View className={'items-center justify-between'}>
-          <TouchableOpacity className={'p-1.5'} onPress={() => onTrash(false)}>
+          <TouchableOpacity className={'p-1.5'} onPress={() => onTrash()}>
             <Trash />
           </TouchableOpacity>
           <TouchableOpacity

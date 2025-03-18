@@ -1,27 +1,31 @@
-import React, {useEffect, useRef, useState} from 'react';
+import React, {useRef, useState} from 'react';
 import {Alert, RefreshControl, ScrollView, View} from 'react-native';
 import FormDropdown from '../../shared/FormDropdown';
-import {
-  FormDataType,
-  IFormsPost,
-} from 'oneentry/dist/formsData/formsDataInterfaces';
-import {api, useGetForm} from '../../../api';
+import {useGetForm} from '../../../api';
 import {Screen} from '../../ui/templates/Screen';
 import TopSpacerV2 from '../../ui/space/TopSpacerV2';
 import Loader from '../../ui/space/Loader';
-import {IAttributes, IError} from 'oneentry/dist/base/utils';
+import {IAttributes} from 'oneentry/dist/base/utils';
 import {FormCaptcha} from '../../shared/FormCaptcha';
-import CompactInput from '../../shared/CompactInput';
-import {useAppDispatch, useAppSelector} from '../../../store/hooks';
-import {clearAllFieldsContactUs} from '../../../store/reducers/contactUsFieldsReducer';
+import ContactUsInput from './ContactUsInput';
+import {useAppDispatch, useAppSelector} from '../../../state/hooks';
+import {clearAllFieldsContactUs} from '../../../state/reducers/ContactUsFieldsReducer';
 import {navigate} from '../../../navigation/utils/NavigatonRef';
 import BigButton from '../../shared/BigButton';
+import {submitContactUsForm} from './submitContactUsForm';
 
-const ContactUsForm: React.FC = () => {
+/**
+ * A React component that renders a contact us form with dynamic fields based on the form data fetched from the server.
+ * This component supports refreshing, validation, and submission of the form data using an external utility function.
+ *
+ * @component ContactUsForm
+ * @returns {React.ReactElement} A React element representing the contact us form.
+ */
+const ContactUsForm: React.FC = (): React.ReactElement => {
   const [refreshing, setRefreshing] = useState<boolean>(false);
   const [token, setToken] = useState<string>('');
   const [isCaptcha, setIsCaptcha] = useState<boolean>(false);
-  const {loading, form, initialFormData, refetch} = useGetForm({
+  const {loading, form, refetch} = useGetForm({
     marker: 'contact_us',
   });
   const recaptcha = useRef<any>();
@@ -38,6 +42,9 @@ const ContactUsForm: React.FC = () => {
     }, 3000);
   };
 
+  /**
+   * Validates the form fields and triggers either form submission or CAPTCHA.
+   */
   const verify = () => {
     let propertiesArray = Object.keys(fields);
 
@@ -49,101 +56,23 @@ const ContactUsForm: React.FC = () => {
       return;
     }
     if (!isCaptcha) {
-      postForm();
-      return;
+      return submitContactUsForm(fields, onSuccess, onError);
     } else {
       recaptcha?.current?.open();
     }
   };
 
-  useEffect(() => {
-    if (initialFormData) {
-    }
-  }, [initialFormData]);
+  // Callback function for successful form submission.
+  const onSuccess = () => {
+    dispatch(clearAllFieldsContactUs());
+    setToken('');
+    navigate('message', {message: success_message});
+  };
 
-  // This function is used to validate and post the form data to the OneEntry
-  const postForm = async () => {
-    const emptyFormData: {marker?: string; value?: string}[] = [];
-    if (fields) {
-      let propertiesArray = Object.keys(fields);
-
-      const transformedFormData = propertiesArray?.reduce(
-        (formData, currentValue) => {
-          if (!fields[currentValue].value) {
-            return formData;
-          }
-          let newData: FormDataType = {
-            marker: currentValue,
-            type: 'string',
-            value: fields[currentValue].value,
-          };
-          if (currentValue === 'topic') {
-            newData = {
-              marker: currentValue,
-              type: 'list',
-              value: [
-                {
-                  title: fields[currentValue].value,
-                  value: fields[currentValue].value,
-                },
-              ],
-            };
-          }
-
-          if (currentValue === 'time2') {
-            newData = {
-              marker: currentValue,
-              type: 'list',
-              value: [
-                {
-                  title: fields[currentValue].value,
-                  value: fields[currentValue].value,
-                },
-              ],
-            };
-          }
-
-          if (currentValue === 'text') {
-            newData = {
-              marker: currentValue,
-              type: 'text',
-              value: [
-                {
-                  htmlValue: `<p>${fields[currentValue].value}</p>`,
-                  plainValue: fields[currentValue].value,
-                  params: {
-                    isEditorDisabled: false,
-                    isImageCompressed: true,
-                  },
-                },
-              ],
-            };
-          }
-
-          if (newData) {
-            formData.push(newData);
-          }
-          return formData;
-        },
-        emptyFormData,
-      );
-      const formData: IFormsPost = {
-        formIdentifier: 'contact_us',
-        formData: transformedFormData,
-      };
-      try {
-        const res = await api.FormData.postFormsData(formData);
-        if ((res as IError)?.statusCode >= 400) {
-          throw new Error((res as IError)?.message);
-        }
-        dispatch(clearAllFieldsContactUs());
-        setToken('');
-        navigate('message', {message: success_message});
-      } catch (e: any) {
-        setToken('');
-        navigate('message', {message: unsuccess_message});
-      }
-    }
+  // Callback function for failed form submission.
+  const onError = () => {
+    setToken('');
+    navigate('message', {message: unsuccess_message});
   };
 
   if (loading) {
@@ -162,7 +91,7 @@ const ContactUsForm: React.FC = () => {
             switch (attribute.type) {
               case 'string':
                 return (
-                  <CompactInput
+                  <ContactUsInput
                     marker={attribute.marker}
                     validators={attribute.validators}
                     title={attribute.localizeInfos.title}
@@ -171,7 +100,7 @@ const ContactUsForm: React.FC = () => {
                 );
               case 'text':
                 return (
-                  <CompactInput
+                  <ContactUsInput
                     marker={attribute.marker}
                     validators={attribute.validators}
                     title={attribute.localizeInfos.title}
@@ -196,7 +125,9 @@ const ContactUsForm: React.FC = () => {
                       captchaKey={attribute.settings.captchaKey}
                       captchaDomain={attribute.settings.captchaKeyDomain}
                       token={token}
-                      onSuccess={postForm}
+                      onSuccess={() =>
+                        submitContactUsForm(fields, onSuccess, onError)
+                      }
                       ref={recaptcha}
                       setIsCaptcha={setIsCaptcha}
                       setToken={setToken}

@@ -32,7 +32,8 @@ const PopUpMenu: React.FC<Props> = ({
   return (
     <Menu>
       <MenuTrigger>{trigger}</MenuTrigger>
-      <MenuOptions customStyles={{optionsContainer: {borderRadius: 15, paddingLeft: 10}}}>
+      <MenuOptions
+        customStyles={{optionsContainer: {borderRadius: 15, paddingLeft: 10}}}>
         {options.map((option, index) => (
           <MenuOption
             key={index}

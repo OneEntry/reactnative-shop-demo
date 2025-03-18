@@ -19,7 +19,9 @@ const ErrorScreen: React.FC<Props> = ({}) => {
       <Paragraph size={64} weight={'bold'}>
         {page?.attributeValues?.error_title?.value}
       </Paragraph>
-      <Paragraph size={32}>{page?.attributeValues?.error_description?.value}</Paragraph>
+      <Paragraph size={32}>
+        {page?.attributeValues?.error_description?.value}
+      </Paragraph>
       <View style={{marginTop: 100}} />
     </Screen>
   );

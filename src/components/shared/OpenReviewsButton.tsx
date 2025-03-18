@@ -17,7 +17,10 @@ const OpenReviewsButton: React.FC<Props> = ({reviewsCount, productId}) => {
     <TouchableOpacity
       onPress={() => navigate('reviews', {productId})}
       style={styles.container}>
-      <Image style={styles.img} source={require('../content/ReviewsScreen/assets/Reviews.png')} />
+      <Image
+        style={styles.img}
+        source={require('../content/ReviewsScreen/assets/Reviews.png')}
+      />
       <Paragraph size={14} weight={'500'} color={'lightGray'}>
         {reviewsCount}
       </Paragraph>

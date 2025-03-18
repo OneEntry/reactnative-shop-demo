@@ -3,15 +3,15 @@ import {Keyboard, StyleSheet, TouchableOpacity, View} from 'react-native';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import {styleColors} from '../../utils/consts';
 import {navigate} from '../utils/NavigatonRef';
-import {useAppSelector} from '../../store/hooks';
-import {selectBasketCount} from '../../store/reducers/CartSlice';
+import {useAppSelector} from '../../state/hooks';
 import {Paragraph} from '../../components/ui/texts/Paragraph';
-import {OpenDrawerContext} from '../../providers/OpenDrawerContext';
+import {OpenDrawerContext} from '../../state/contexts/OpenDrawerContext';
 import hairlineWidth = StyleSheet.hairlineWidth;
 import ErrorBlock from '../../components/shared/ErrorBlock';
 import {IMenusPages} from 'oneentry/dist/menus/menusInterfaces';
 import CustomImage from '../../components/ui/templates/CustomImage';
 import {useGetMenuQuery} from '../../api/api/RTKApi';
+import {getCartLength} from '../../state/reducers/userStateSlice';
 
 interface Props {}
 
@@ -19,7 +19,7 @@ const BottomBar: React.FC<Props> = ({}) => {
   const {data: menu, error} = useGetMenuQuery({marker: 'bottom'});
   const {active} = useContext(OpenDrawerContext);
   const insets = useSafeAreaInsets();
-  const cartCount = useAppSelector(selectBasketCount);
+  const cartCount = useAppSelector(getCartLength);
   const [isKeyboardVisible, setKeyboardVisible] = useState(false);
 
   useEffect(() => {

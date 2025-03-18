@@ -8,10 +8,11 @@ import {
   View,
 } from 'react-native';
 import {Paragraph} from '../../ui/texts/Paragraph';
-import {api} from '../../../api';
+import {defineApi} from '../../../api';
 import {useRoute} from '@react-navigation/native';
 import {AuthActivateRouteProp} from '../../../navigation/utils/hooks';
-import {useAppSelector} from '../../../store/hooks';
+import {useAppSelector} from '../../../state/hooks';
+import {IError} from 'oneentry/dist/base/utils';
 
 type Props = {
   value: string;
@@ -21,7 +22,19 @@ type Props = {
 const numbers = Array.from({length: 6}, (_, i) => i);
 const CODE_LENGTH = numbers.length;
 
-const OTPInput: React.FC<Props> = ({value, setValue}) => {
+/**
+ * A React component for entering a One-Time Password (OTP) code.
+ *
+ * @component OTPInput
+ * @param {Props} props - The properties passed to the component.
+ * @param {string} props.value - The current OTP code value.
+ * @param {Dispatch<string>} props.setValue - Function to update the OTP code value.
+ * @returns {React.ReactElement} A React element representing the OTP input fields and controls.
+ */
+const OTPInput: React.FC<Props> = ({
+  value,
+  setValue,
+}: Props): React.ReactElement => {
   const [isKeyboardOpen, setIsKeyboardOpen] = useState(false);
   const {params} = useRoute<AuthActivateRouteProp>();
   const ref = useRef<TextInput>(null);
@@ -31,14 +44,17 @@ const OTPInput: React.FC<Props> = ({value, setValue}) => {
 
   const onResend = async () => {
     try {
-      await api.AuthProvider.generateCode(
+      const result = await defineApi.AuthProvider.generateCode(
         params.method,
         params.email,
         params.event === 'activate' ? 'generate_code' : 'reset',
       );
+
+      if ((result as IError).pageData) {
+        throw new Error((result as IError).message);
+      }
     } catch (e: any) {
       Alert.alert(e.message);
-      console.log(e);
     }
   };
 
@@ -47,13 +63,22 @@ const OTPInput: React.FC<Props> = ({value, setValue}) => {
     ref?.current?.focus();
   };
 
-  // Functionalities to close the keyboard when it is hidden
+  /**
+   * Listens for keyboard hide events and updates the keyboard open state.
+   */
   useEffect(() => {
     Keyboard.addListener('keyboardDidHide', () => {
       setIsKeyboardOpen(false);
     });
   }, []);
 
+  /**
+   * Renders a single digit input field.
+   *
+   * @param {Object} param0 - Parameters for the digit component.
+   * @param {number} param0.i - Index of the digit.
+   * @returns {React.ReactElement} A React element representing a single digit input field.
+   */
   const digitComponent = ({i}: {i: number}) => {
     const isCurrentDigit = i === value.length;
     const isLastDigit = i === CODE_LENGTH - 1;

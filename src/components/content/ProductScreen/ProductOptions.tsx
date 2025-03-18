@@ -42,7 +42,7 @@ const ProductOptions: React.FC<Props> = ({mainProduct}) => {
       {[mainProduct, ...products]?.map((product, index) => (
         <TouchableOpacity
           className={
-            'flex-row items-center p-0.5 rounded-full pr-2.5 space-x-2 mr-1 border-lightGray border-sm'
+            'flex-row items-center p-0.5 rounded-full pr-2.5 gap-x-2 mr-1 border-lightGray border-sm'
           }
           style={[
             mainProduct?.id === product?.id && {

@@ -2,8 +2,8 @@ import React, {memo} from 'react';
 import {StyleProp, TouchableOpacity, View, ViewStyle} from 'react-native';
 import {styleColors} from '../../../utils/consts';
 import {Paragraph} from '../../ui/texts/Paragraph';
-import {useAppDispatch} from '../../../store/hooks';
-import {setColorFilterActive} from '../../../store/reducers/FilterSlice';
+import {useAppDispatch} from '../../../state/hooks';
+import {setColorFilterActive} from '../../../state/reducers/FilterSlice';
 
 interface Props {
   code: string;
@@ -29,7 +29,7 @@ const ColorPicker: React.FC<Props> = ({code, name, active, index}) => {
   return (
     <TouchableOpacity
       onPress={onPress}
-      className={'rounded-full py-1.5 items-center flex-row space-x-1 w-[74px]'}
+      className={'rounded-full py-1.5 items-center flex-row gap-x-1 w-[74px]'}
       style={[index === active && selectedStyles]}>
       <View style={[additionalStyles]} />
       <Paragraph className={'text-gray'}>{name}</Paragraph>

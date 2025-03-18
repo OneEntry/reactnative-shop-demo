@@ -1,5 +1,5 @@
 import {createApi, fakeBaseQuery} from '@reduxjs/toolkit/query/react';
-import {api} from './api';
+import {defineApi} from './defineApi';
 import {
   IPagesEntity,
   IPositionBlock,
@@ -19,14 +19,17 @@ import {IAttributes, IError} from 'oneentry/dist/base/utils';
 import {IAttributesSetsEntity} from 'oneentry/dist/attribute-sets/attributeSetsInterfaces';
 import {IBlockEntity} from 'oneentry/dist/blocks/blocksInterfaces';
 import {
+  IFilterParams,
   IProductBlock,
   IProductEntity,
   IProductsEntity,
+  IProductsQuery,
   IProductsResponse,
 } from 'oneentry/dist/products/productsInterfaces';
 import {IMenusEntity} from 'oneentry/dist/menus/menusInterfaces';
 import {ILocalEntity} from 'oneentry/dist/locales/localesInterfaces';
-import { logJSON } from "../../utils/logJSON";
+import {logJSON} from '../../utils/logJSON';
+import getSearchParams from '../utils/getSearchParams';
 
 export const RTKApi = createApi({
   reducerPath: 'api',
@@ -35,7 +38,7 @@ export const RTKApi = createApi({
     getAuthProviders: build.query<IAuthProvidersEntity[], string | undefined>({
       queryFn: async activeLang => {
         try {
-          const result = await api.AuthProvider.getAuthProviders(activeLang);
+          const result = await defineApi.AuthProvider.getAuthProviders(activeLang);
           if ((result as IError)?.statusCode >= 400) {
             throw new Error((result as IError)?.message);
           }
@@ -48,7 +51,7 @@ export const RTKApi = createApi({
     getFormByMarker: build.query<IFormsEntity, {marker: string}>({
       queryFn: async ({marker}) => {
         try {
-          const result = await api.Forms.getFormByMarker(marker);
+          const result = await defineApi.Forms.getFormByMarker(marker);
 
           if ((result as IError)?.statusCode >= 400) {
             throw new Error((result as IError)?.message);
@@ -66,28 +69,22 @@ export const RTKApi = createApi({
     getMe: build.query<IUserEntity, {}>({
       queryFn: async () => {
         try {
-          const result = await api.Users.getUser();
-          logJSON(result);
-          if (!result || (result as IError)?.statusCode >= 400) {
-            throw new Error(
-              JSON.stringify({
-                message: (result as IError).message,
-                statusCode: (result as IError)?.statusCode,
-                pageData: (result as IError)?.pageData,
-              }),
-            );
+          const result = await defineApi.Users.getUser();
+          if (!result || (result as IError)?.pageData) {
+            console.log(result);
+            throw new Error(JSON.stringify(result));
           }
           return {data: result as IUserEntity};
         } catch (e: any) {
-          const error = JSON.parse(e.message);
-          return {error: error};
+          const errorPage = JSON.parse(e.message);
+          return {error: errorPage};
         }
       },
     }),
     getAccounts: build.query<IAccountsEntity[], {}>({
       queryFn: async () => {
         try {
-          const result = await api.Payments.getAccounts();
+          const result = await defineApi.Payments.getAccounts();
 
           if ((result as IError)?.statusCode >= 400) {
             throw new Error((result as IError)?.message);
@@ -102,7 +99,7 @@ export const RTKApi = createApi({
     getOrderStorageByMarker: build.query<IOrdersEntity, {marker: string}>({
       queryFn: async ({marker}) => {
         try {
-          const result = await api.Orders.getOrderByMarker(marker);
+          const result = await defineApi.Orders.getOrderByMarker(marker);
 
           if ((result as IError)?.statusCode >= 400) {
             throw new Error((result as IError)?.message);
@@ -118,7 +115,7 @@ export const RTKApi = createApi({
       queryFn: async ({id}) => {
         try {
           // @ts-ignore
-          const result = await api.Payments.getSessionById(id);
+          const result = await defineApi.Payments.getSessionById(id);
           if ((result as IError)?.statusCode >= 400) {
             throw new Error((result as IError)?.message);
           }
@@ -131,7 +128,7 @@ export const RTKApi = createApi({
     getUserOrders: build.query<IOrdersByMarkerEntity, {marker: string}>({
       queryFn: async ({marker}) => {
         try {
-          const result = await api.Orders.getAllOrdersByMarker(marker);
+          const result = await defineApi.Orders.getAllOrdersByMarker(marker);
 
           if ((result as IError)?.statusCode >= 400) {
             throw new Error((result as IError)?.message);
@@ -149,9 +146,8 @@ export const RTKApi = createApi({
     >({
       queryFn: async ({setMarker}) => {
         try {
-          const result = await api.AttributesSets.getAttributesByMarker(
-            setMarker,
-          );
+          const result =
+            await defineApi.AttributesSets.getAttributesByMarker(setMarker);
 
           if ((result as IError)?.statusCode >= 400) {
             throw new Error((result as IError)?.message);
@@ -168,7 +164,7 @@ export const RTKApi = createApi({
     >({
       queryFn: async ({setMarker, attributeMarker}) => {
         try {
-          const result = await api.AttributesSets.getSingleAttributeByMarkerSet(
+          const result = await defineApi.AttributesSets.getSingleAttributeByMarkerSet(
             setMarker,
             attributeMarker,
           );
@@ -190,7 +186,7 @@ export const RTKApi = createApi({
     >({
       queryFn: async ({marker, offset, limit, langCode}) => {
         try {
-          const result = await api.Blocks.getBlockByMarker(
+          const result = await defineApi.Blocks.getBlockByMarker(
             marker,
             langCode || undefined,
             offset,
@@ -215,7 +211,8 @@ export const RTKApi = createApi({
             return {data: []};
           }
 
-          const result = await api.Products.getProductBlockById(productId);
+          const result = await defineApi.Products.getProductBlockById(productId);
+
           if ((result as IError)?.statusCode >= 400) {
             throw new Error((result as IError)?.message);
           }
@@ -233,7 +230,7 @@ export const RTKApi = createApi({
             return {data: []};
           }
 
-          const result = await api.Pages.getBlocksByPageUrl(pageUrl);
+          const result = await defineApi.Pages.getBlocksByPageUrl(pageUrl);
 
           if ((result as IError)?.statusCode >= 400) {
             throw new Error((result as IError)?.message);
@@ -253,7 +250,7 @@ export const RTKApi = createApi({
             return {data: undefined};
           }
 
-          const result = await api.Products.getRelatedProductsById(id);
+          const result = await defineApi.Products.getRelatedProductsById(id);
 
           if ((result as IError)?.statusCode >= 400) {
             throw new Error((result as IError)?.message);
@@ -275,7 +272,7 @@ export const RTKApi = createApi({
             return {data: {limit: 2, columns: 2}};
           }
 
-          const result = await api.Pages.getConfigPageByUrl(pageUrl);
+          const result = await defineApi.Pages.getConfigPageByUrl(pageUrl);
 
           if ((result as IError)?.statusCode >= 400) {
             throw new Error((result as IError)?.message);
@@ -283,7 +280,9 @@ export const RTKApi = createApi({
 
           return {
             data: {
-              limit: (result.productsPerRow || 2) * (result.rowsPerPage <= 1 ? 2 : result.rowsPerPage),
+              limit:
+                (result.productsPerRow || 2) *
+                (result.rowsPerPage <= 1 ? 2 : result.rowsPerPage),
               columns: result?.productsPerRow || 2,
             },
           };
@@ -299,7 +298,7 @@ export const RTKApi = createApi({
             console.log('page url is required');
             return {data: undefined};
           }
-          const result = await api.Pages.getPageByUrl(pageUrl);
+          const result = await defineApi.Pages.getPageByUrl(pageUrl);
 
           if ((result as IError)?.statusCode >= 400) {
             throw new Error((result as IError)?.message);
@@ -314,7 +313,7 @@ export const RTKApi = createApi({
     getProductById: build.query<IProductsEntity, {id: number}>({
       queryFn: async ({id}) => {
         try {
-          const result = await api.Products.getProductById(id);
+          const result = await defineApi.Products.getProductById(id);
 
           if ((result as IError)?.statusCode >= 400) {
             throw new Error((result as IError)?.message);
@@ -328,7 +327,7 @@ export const RTKApi = createApi({
     }),
     getProductsByIds: build.query<IProductsEntity[], {items: string}>({
       queryFn: async ({items}) => {
-        const products = await api.Products.getProductsByIds(items);
+        const products = await defineApi.Products.getProductsByIds(items);
         if (!products || (products as IError).statusCode >= 400) {
           return {error: 'Data error'};
         } else {
@@ -337,10 +336,79 @@ export const RTKApi = createApi({
       },
     }),
 
+    getProducts: build.query<
+      IProductsEntity[],
+      {
+        pageUrl?: string;
+        filters?: IFilterParams[];
+        search?: string;
+        sortKey: 'id' | 'position' | 'title' | 'date' | 'price';
+        sortOrder: 'DESC' | 'ASC';
+        offset: number;
+        available?: boolean;
+        limit?: number;
+      }
+    >({
+      queryFn: async ({
+        pageUrl,
+        limit,
+        offset,
+        sortKey,
+        sortOrder,
+        search,
+        filters,
+        available,
+      }) => {
+        try {
+          if (!limit) {
+            return {data: []};
+          }
+          const body = getSearchParams({search, filters});
+
+          let result: IError | IProductsResponse;
+
+          if (pageUrl !== 'shop') {
+            result = await defineApi.Products.getProductsByPageUrl(
+              pageUrl,
+              body,
+              undefined,
+              {
+                offset,
+                limit,
+                sortOrder,
+                sortKey,
+                statusMarker: available ? 'in_stock' : undefined,
+              },
+            );
+          } else {
+            result = await defineApi.Products.getProducts(body, undefined, {
+              sortOrder: sortOrder,
+              sortKey: sortKey,
+              offset,
+              limit,
+              statusMarker: available ? 'in_stock' : undefined,
+            });
+          }
+
+          if ((result as IError)?.statusCode >= 400) {
+            throw new Error((result as IError)?.message);
+          }
+
+          const products = (result as IProductsResponse)?.items?.filter(res => {
+            return res.isVisible;
+          });
+
+          return {data: products as IProductEntity[]};
+        } catch (e: any) {
+          return {error: e.message};
+        }
+      },
+    }),
+
     getMenu: build.query<IMenusEntity, {marker: string}>({
       queryFn: async ({marker}) => {
         try {
-          const result = await api.Menus.getMenusByMarker(marker);
+          const result = await defineApi.Menus.getMenusByMarker(marker);
 
           if ((result as IError)?.statusCode >= 400) {
             throw new Error((result as IError)?.message);
@@ -355,7 +423,7 @@ export const RTKApi = createApi({
     getLocales: build.query<ILocalEntity[], any>({
       queryFn: async () => {
         try {
-          const result = await api.Locales.getLocales();
+          const result = await defineApi.Locales.getLocales();
 
           if ((result as IError)?.statusCode >= 400) {
             throw new Error((result as IError)?.message);
@@ -370,7 +438,7 @@ export const RTKApi = createApi({
     getPages: build.query<IPagesEntity[], any>({
       queryFn: async () => {
         try {
-          const result = await api.Pages.getPages();
+          const result = await defineApi.Pages.getPages();
 
           if ((result as IError)?.statusCode >= 400) {
             throw new Error((result as IError)?.message);
@@ -408,5 +476,5 @@ export const {
   useGetMenuQuery,
   useGetLocalesQuery,
   useGetPagesQuery,
-  useGetProductsByIdsQuery,
+  useGetProductsQuery,
 } = RTKApi;

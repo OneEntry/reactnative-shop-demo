@@ -8,7 +8,7 @@ import OTPScreen from '../../pages/auth/OTPScreen';
 import ResetPasswordScreen from '../../pages/auth/ResetPasswordScreen';
 import NewPasswordScreen from '../../pages/auth/NewPasswordScreen';
 import AuthTopBar from '../components/AuthTopBar';
-import {useAppSelector} from '../../store/hooks';
+import {useAppSelector} from '../../state/hooks';
 
 type Props = {};
 

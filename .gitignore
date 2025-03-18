@@ -42,7 +42,7 @@ yarn-error.log
 
 # fastlane
 #
-# It is recommended to not store the screenshots in the git repo. Instead, use fastlane to re-generate the
+# It is recommended to not state the screenshots in the git repo. Instead, use fastlane to re-generate the
 # screenshots whenever they are needed.
 # For more information about the recommended setup visit:
 # https://docs.fastlane.tools/best-practices/source-control/
@@ -65,6 +65,13 @@ yarn-error.log
 # testing
 /coverage
 
+# Yarn
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/sdks
+!.yarn/versions
 
 # Expo
 .expo
@@ -78,8 +85,6 @@ Gemfile.lock
 yarn.lock
 google-services.json
 GoogleService-Info.plist
+.yarnrc.yml
 
 /legacy
-
-/.yarn
-.yarnrc.yml

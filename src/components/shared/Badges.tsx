@@ -5,7 +5,7 @@ import {
   ViewProps,
 } from 'react-native';
 import {Paragraph} from '../ui/texts/Paragraph';
-import {ROUNDED_RADIUS, styleColors} from '../../utils/consts';
+import {styleColors} from '../../utils/consts';
 import Animated, {
   interpolateColor,
   useAnimatedStyle,
@@ -14,7 +14,7 @@ import Animated, {
 } from 'react-native-reanimated';
 import {IFilterParams} from 'oneentry/dist/products/productsInterfaces';
 
-type BadgeProps = TBadge & {
+type BadgeProps = Record<any, any> & {
   onChange: (value: number, filters: IFilterParams[]) => void;
   isActive?: boolean;
   index: number;
@@ -22,7 +22,7 @@ type BadgeProps = TBadge & {
 };
 
 type BadgeListProps = ViewProps & {
-  options: TBadge[];
+  options: Record<any, any>[];
   onChange: (value: number, filters: IFilterParams[]) => void;
   activeValue?: number | string;
   filters: IFilterParams[];

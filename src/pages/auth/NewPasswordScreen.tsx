@@ -3,7 +3,7 @@ import {Screen} from '../../components/ui/templates/Screen';
 import {styleColors} from '../../utils/consts';
 import {Alert, View} from 'react-native';
 import {Button} from '../../components/ui/buttons/Button';
-import {api} from '../../api';
+import {defineApi} from '../../api';
 import {RouteProp, useRoute} from '@react-navigation/native';
 import {AuthStackNavigatorParamList} from '../../navigation';
 import {navigateAuth} from '../../navigation/utils/NavigatonRef';
@@ -21,7 +21,7 @@ const NewPasswordScreen: React.FC<Props> = ({}) => {
 
   const onChangePass = async () => {
     try {
-      const result = await api.AuthProvider.changePassword(
+      const result = await defineApi.AuthProvider.changePassword(
         'email',
         email,
         '2',

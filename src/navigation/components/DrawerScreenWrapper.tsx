@@ -38,7 +38,8 @@ const DrawerScreenWrapper: React.FC<Props> = ({children}) => {
   }));
   return (
     <Animated.View style={[styles.container, animatedStyle]}>
-      <Animated.View style={[styles.drawerContainer, animatedTemplate, animatedContent]}>
+      <Animated.View
+        style={[styles.drawerContainer, animatedTemplate, animatedContent]}>
         <View style={[styles.drawerContent]}>
           <TouchableOpacity
             onPress={() => {}}

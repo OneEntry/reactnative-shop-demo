@@ -1,24 +1,30 @@
 import React, {useMemo} from 'react';
 import {BadgeList} from '../../../shared/Badges';
-import ContentNotFoundBlock from '../../../shared/ContentNotFoundBlock';
 import {IListTitle} from 'oneentry/dist/attribute-sets/attributeSetsInterfaces';
 import {layoutPadding} from '../../../../utils/consts';
 import {navigate} from '../../../../navigation/utils/NavigatonRef';
-import Skeleton from 'react-native-reanimated-skeleton';
 import {IAttributeValues} from 'oneentry/dist/base/utils';
+import Skeleton from '../../../shared/Skeleton';
 
 type Props = {
   attributes?: IAttributeValues;
   loading: boolean;
 };
 
-const HomeBadges: React.FC<Props> = ({attributes, loading}) => {
-  const badges = useMemo<TBadge[]>(() => {
+/**
+ * HomeBadges component displays a list of badges.
+ * It navigates to the corresponding shop screen based on the clicked badge.
+ *
+ * @param {Props} props - Component props.
+ * @returns {React.ReactElement} - Rendered component.
+ */
+const HomeBadges: React.FC<Props> = ({attributes, loading}: Props): React.ReactElement => {
+  const badges = useMemo<[]>(() => {
     return attributes?.badges?.value?.map((badge: IListTitle) => {
       if (!badge?.title || !badge?.value) {
         return;
       }
-      const badgeToPush: TBadge = {
+      const badgeToPush = {
         label: badge.title,
         value: badge.value,
       };
@@ -38,13 +44,10 @@ const HomeBadges: React.FC<Props> = ({attributes, loading}) => {
   };
 
   return (
-    <Skeleton
-      containerStyle={{height: 60}}
-      isLoading={loading}
-      layout={[{key: 'badges', height: 40, width: '100%', marginTop: 20}]}>
+    <Skeleton height={60} isLoading={loading}>
       <BadgeList
         options={badges || []}
-        onChange={(index) => onChangeActiveBadge(index)}
+        onChange={index => onChangeActiveBadge(index)}
         style={{paddingHorizontal: layoutPadding}}
         filters={[]}
       />

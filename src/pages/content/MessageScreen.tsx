@@ -4,7 +4,7 @@ import {View} from 'react-native';
 import {Paragraph} from '../../components/ui/texts/Paragraph';
 import {Button} from '../../components/ui/buttons/Button';
 import {navigate} from '../../navigation/utils/NavigatonRef';
-import {useAppSelector} from '../../store/hooks';
+import {useAppSelector} from '../../state/hooks';
 import {RouteProp, useRoute} from '@react-navigation/native';
 import {DrawerStackNavigatorParamList} from '../../navigation';
 

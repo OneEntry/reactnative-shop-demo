@@ -3,8 +3,8 @@ import {StyleSheet, View} from 'react-native';
 import {Paragraph} from '../../ui/texts/Paragraph';
 import {Switch} from 'react-native-switch';
 import {styleColors} from '../../../utils/consts';
-import {useAppDispatch, useAppSelector} from '../../../store/hooks';
-import {setAvailability} from '../../../store/reducers/FilterSlice';
+import {useAppDispatch, useAppSelector} from '../../../state/hooks';
+import {setAvailability} from '../../../state/reducers/FilterSlice';
 
 interface Props {
   title?: string;
@@ -24,7 +24,7 @@ const AvailabilityFilter: React.FC<Props> = ({title}) => {
         onValueChange={value => dispatch(setAvailability(value))}
         circleSize={13}
         backgroundActive={styleColors.background}
-        backgroundInactive={styleColors.gray_v2}
+        backgroundInactive={'#EEEFF0'}
         renderActiveText={false}
         renderInActiveText={false}
         circleBorderActiveColor={'#F6F7F9'}

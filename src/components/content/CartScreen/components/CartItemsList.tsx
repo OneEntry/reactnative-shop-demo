@@ -1,77 +1,41 @@
-import React, {memo, useEffect} from 'react';
+import React, { memo, useMemo } from "react";
 import {FlatList} from 'react-native';
 import CartItem from './CartItem';
-import {useAppDispatch, useAppSelector} from '../../../../store/hooks';
+import {useAppSelector} from '../../../../state/hooks';
 import Footer from '../../../ui/space/Footer';
 import EmptyContentBlock from '../../../shared/EmptyContentBlock';
-import {useGetProductsByIds} from '../hooks/useGetProductsByIds';
-import {api} from '../../../../api';
-import {IProductsEntity} from 'oneentry/dist/products/productsInterfaces';
-import {
-  addCartTotal,
-  selectCartItems,
-} from '../../../../store/reducers/CartSlice';
+import useWebSocket from '../../../../hooks/shared/useWebSocket';
+import useGetProductsByIds from '../../../../hooks/shared/useGetProductsByIds';
+import { it } from "@jest/globals";
 
 interface Props {}
 
-const CartItemsList: React.FC<Props> = ({}) => {
-  const items = useAppSelector(selectCartItems);
-  const {products, setProducts} = useGetProductsByIds({items});
+/**
+ * A React component that renders a list of cart items using a FlatList.
+ * This component fetches product details from the server and displays them alongside the cart items.
+ * It also handles WebSocket updates for real-time data synchronization.
+ *
+ * @component CartItemsList
+ * @returns {React.ReactElement} A React element containing the list of cart items.
+ */
+const CartItemsList: React.FC<Props> = ({}): React.ReactElement => {
+  const items = useAppSelector(state => state.userStateReducer.cart);
+  const ids = useMemo(() => items.map(item => item.id) || [], [items]);
+
+  /**
+   * Fetches product details based on the product IDs.
+   */
+  const {products, setProducts} = useGetProductsByIds({
+    ids,
+  });
+
+  useWebSocket({products, setProducts});
   const {empty_cart_plug} = useAppSelector(
     state => state.systemContentReducer.content,
   );
   const cart_item_options = useAppSelector(
     state => state.systemContentReducer.cart_item_options,
   );
-  const dispatch = useAppDispatch();
-
-  //Effect for Websocket
-  useEffect(() => {
-    if (products) {
-      const ws = api.WS.connect();
-      if (ws) {
-        ws.on('notification', async res => {
-          if (res?.product) {
-            const product = {
-              ...res.product,
-              attributeValues: res.product?.attributes,
-            };
-
-            const index = products.findIndex(
-              (p: IProductsEntity) => p.id === product.id,
-            );
-            const newPrice = parseInt(
-              product?.attributeValues?.price?.value,
-              10,
-            );
-
-            setProducts(prevProducts => {
-              const newProducts = [...prevProducts];
-              newProducts[index] = {
-                ...products[index],
-                price: newPrice,
-                statusIdentifier: res?.product?.status?.identifier,
-              };
-              return newProducts;
-            });
-          }
-        });
-
-        return () => {
-          ws.disconnect();
-        };
-      }
-    }
-  }, [products]);
-
-  //Effect for Cart Total
-  useEffect(() => {
-    if (products) {
-      dispatch(
-        addCartTotal(products.reduce((acc, product) => acc + product.price, 0)),
-      );
-    }
-  }, [products]);
 
   return (
     <FlatList

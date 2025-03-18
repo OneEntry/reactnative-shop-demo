@@ -2,12 +2,12 @@ import React, {memo} from 'react';
 import {Image, ImageBackground, TouchableOpacity, View} from 'react-native';
 import {Paragraph} from '../../../ui/texts/Paragraph';
 import {useAppNavigation} from '../../../../navigation/types/types';
-import {useAppDispatch, useAppSelector} from '../../../../store/hooks';
+import {useAppDispatch, useAppSelector} from '../../../../state/hooks';
 import {
   addFilter,
   removeFilter,
   setHomeCardPrevious,
-} from '../../../../store/reducers/FilterSlice';
+} from '../../../../state/reducers/FilterSlice';
 import {IFilterParams} from 'oneentry/dist/products/productsInterfaces';
 import CustomImage from '../../../ui/templates/CustomImage';
 
@@ -20,6 +20,15 @@ interface Props {
   sticker_name?: string;
 }
 
+/**
+ * OfferHorizontalItem component displays a horizontal offer item with an image background.
+ * It handles navigation based on the presence of a sticker name or product ID.
+ * When a sticker name is present, it updates filters and navigates to the shop screen.
+ * When a product ID is present, it navigates to the product detail screen.
+ *
+ * @param {Props} props - Component props.
+ * @returns {React.ReactElement} - Rendered component.
+ */
 const OfferHorizontalItem: React.FC<Props> = ({
   bg,
   item,
@@ -27,7 +36,7 @@ const OfferHorizontalItem: React.FC<Props> = ({
   sticker_name,
   productId,
   sticker,
-}) => {
+}: Props): React.ReactElement => {
   const navigation = useAppNavigation();
   const dispatch = useAppDispatch();
   const homeCardPrevious = useAppSelector(
@@ -35,7 +44,9 @@ const OfferHorizontalItem: React.FC<Props> = ({
   );
   const onPress = () => {
     if (sticker_name) {
+      // Remove the previous filter of this category
       dispatch(removeFilter(homeCardPrevious));
+      // Create a new filter candidate based on the sticker name
       const candidate: IFilterParams = {
         attributeMarker: 'stickers',
         conditionMarker: 'in',

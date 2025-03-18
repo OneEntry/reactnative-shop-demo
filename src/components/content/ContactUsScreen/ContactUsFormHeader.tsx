@@ -1,7 +1,7 @@
 import React, {memo} from 'react';
 import {Image, View} from 'react-native';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
-import {useAppSelector} from '../../../store/hooks';
+import {useAppSelector} from '../../../state/hooks';
 import CustomImage from '../../ui/templates/CustomImage';
 
 interface Props {}

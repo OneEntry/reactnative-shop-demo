@@ -1,9 +1,9 @@
 import React, {memo, useContext, useEffect, useState} from 'react';
 import {StyleSheet, Text, View} from 'react-native';
 import {Dropdown} from 'react-native-element-dropdown';
-import {LanguageContext} from '../../providers/LanguageContext';
+import {LanguageContext} from '../../state/contexts/LanguageContext';
 import {RTKApi} from '../../api';
-import {useAppDispatch} from '../../store/hooks';
+import {useAppDispatch} from '../../state/hooks';
 
 export type DropdownItem = {
   label: any;

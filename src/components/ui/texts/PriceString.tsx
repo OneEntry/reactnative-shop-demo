@@ -1,7 +1,7 @@
 import React, {memo} from 'react';
 import {Paragraph} from './Paragraph';
 import {TextStyle, View} from 'react-native';
-import {useAppSelector} from '../../../store/hooks';
+import {useAppSelector} from '../../../state/hooks';
 
 type Props = {
   price?: number;

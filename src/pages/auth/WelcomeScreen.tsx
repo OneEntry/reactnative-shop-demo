@@ -1,9 +1,10 @@
 import React from 'react';
 import {Screen} from '../../components/ui/templates/Screen';
 import {
-  AuthMethodsList, PolicyLink,
-  WelcomeHeader
-} from "../../components/auth/WelcomeScreen";
+  AuthMethodsList,
+  PolicyLink,
+  WelcomeHeader,
+} from '../../components/auth/WelcomeScreen';
 
 type Props = {};
 

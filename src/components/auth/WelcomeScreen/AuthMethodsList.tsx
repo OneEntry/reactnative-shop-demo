@@ -4,7 +4,7 @@ import Email from './assets/Email.svg';
 import BigButton from '../../shared/BigButton';
 import CreateAccountButton from '../../shared/CreateAccountButton';
 import {navigateAuth} from '../../../navigation/utils/NavigatonRef';
-import {LanguageContext} from '../../../providers/LanguageContext';
+import {LanguageContext} from '../../../state/contexts/LanguageContext';
 import {useGetAuthProvidersQuery} from '../../../api';
 import ErrorBlock from '../../shared/ErrorBlock';
 

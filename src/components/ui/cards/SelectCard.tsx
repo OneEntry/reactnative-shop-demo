@@ -22,10 +22,7 @@ const SelectCard: React.FC<Props> = ({
   const {style} = rest;
   return (
     <TouchableOpacity
-      style={[
-        styles.container,
-        style,
-      ]}
+      style={[styles.container, style]}
       className={`${selected ? 'border-accent' : 'border-transparent'} ${rest.className}`}
       onPress={onPress}>
       {children}

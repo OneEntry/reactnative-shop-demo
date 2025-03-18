@@ -1,3 +1,3 @@
-import CreatedOrdersDetails from "./CreatedOrdersDetails";
+import CreatedOrdersDetails from './CreatedOrdersDetails';
 
 export {CreatedOrdersDetails};
