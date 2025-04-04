@@ -25,28 +25,9 @@ In this application, you will find the use of all the functional features of One
 
 This app provides a fully immersive shopping experience with all essential e-commerce features. Start by registering for an account, and dive into a comprehensive, flexible catalog of products complete with powerful search options, extensive filtering, and organizational tools. Users can add products to their favorites and cart, with state managed on the server to support consistency across sessions.
 
-<div style="display: flex; gap: 1px; overflow: hidden;">
-  <div style="flex: 1; height: 270px; overflow: hidden;">
-    <img src="assets/screenshots/home.png" alt="Home screen" style="height: 100%; width: auto; object-fit: cover;" />
-    <p style="text-align: center; font-size: 12px;">Masters</p>
-  </div>
-  <div style="flex: 1; height: 270px; overflow: hidden;">
-    <img src="assets/screenshots/catalog.png" alt="Catalog screen" style="height: 100%; width: auto; object-fit: cover;" />
-    <p style="text-align: center; font-size: 12px;">Services</p>
-  </div>
-  <div style="flex: 1; height: 270px; overflow: hidden;">
-    <img src="assets/screenshots/order.png" alt="Order page" style="height: 100%; width: auto; object-fit: cover;" />
-    <p style="text-align: center; font-size: 12px;">Booking</p>
-  </div>
-    <div style="flex: 1; height: 270px; overflow: hidden;">
-    <img src="assets/screenshots/profile.png" alt="Profile" style="height: 100%; width: auto; object-fit: cover;" />
-    <p style="text-align: center; font-size: 12px;">Booking</p>
-  </div>
-    <div style="flex: 1; height: 270px; overflow: hidden;">
-    <img src="assets/screenshots/menu.png" alt="Menu" style="height: 100%; width: auto; object-fit: cover;" />
-    <p style="text-align: center; font-size: 12px;">Booking</p>
-  </div>
-</div>
+| Home                                        | Catalog                                           | Order                                       | Profile                                    | Menu                                 |
+|---------------------------------------------|---------------------------------------------------|---------------------------------------------|--------------------------------------------|--------------------------------------|
+| ![Home screen](assets/screenshots/home.png) | ![Catalog screen](assets/screenshots/catalog.png) | ![Order page](assets/screenshots/order.png) | ![Profile](assets/screenshots/profile.png) | ![Menu](assets/screenshots/menu.png) |
 
 ## Features
 
