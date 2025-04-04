@@ -1,13 +1,12 @@
 import React, {Dispatch, memo, useMemo, useState} from 'react';
 import dayjs from 'dayjs';
 import {useAppDispatch} from '../../../state/hooks';
-import useGetSchedule from '../../../hooks/content/HomeScreen/useGetSchedule';
-import useGetDisabledArray from '../../../hooks/content/HomeScreen/useGetDisabledArray';
 import {styleColors} from '../../../utils/consts';
 import {Calendar, DateData} from 'react-native-calendars';
-import {addData} from '../../../state/reducers/OrderReducer';
+import { addAvailableTimeSlots, addData } from "../../../state/reducers/OrderReducer";
 import CustomModal from '../../shared/CustomModal';
 import {View} from 'react-native';
+import useGetSchedule from '../../../hooks/content/PrepareOrderScreen/useGetSchedule';
 
 /**
  * A modal calendar component that allows users to select a shipping date for their order.
@@ -40,15 +39,8 @@ const DatePickerModal: React.FC<Props> = ({
   /**
    * Custom hook to fetch the available days and exceptions from the interval attribute.
    */
-  const {available, exceptions} = useGetSchedule();
-
-  /**
-   * Custom hook to generate an object of disabled dates for the current month.
-   */
-  const {disabledDates} = useGetDisabledArray({
-    available,
-    exceptions,
-    currentMonth,
+  const {available, fullyDisabledDates} = useGetSchedule({
+    displayedMonth: currentMonth,
   });
 
   /**
@@ -56,20 +48,38 @@ const DatePickerModal: React.FC<Props> = ({
    * Combines the selected date and disabled dates into a single object.
    */
   const marked = useMemo(() => {
-    return Object.assign(
-      {},
-      {
-        [selectedDate]: {
-          selected: true,
-          disableTouchEvent: false,
-          selectedColor: styleColors.background,
-          borderRadius: 4,
-          selectedTextColor: 'white',
-        },
+    const disabledDates = fullyDisabledDates?.reduce(
+      (obj: Record<any, any>, date) => {
+        obj[date] = {disabled: true, inactive: true};
+        return obj;
       },
-      disabledDates,
+      {},
     );
-  }, [selectedDate, disabledDates]);
+
+    return disabledDates
+      ? Object.assign(
+          {},
+          {
+            [selectedDate]: {
+              selected: true,
+              disableTouchEvent: false,
+              selectedColor: styleColors.background,
+              borderRadius: 4,
+              selectedTextColor: 'white',
+            },
+          },
+          disabledDates,
+        )
+      : {
+          [selectedDate]: {
+            selected: true,
+            disableTouchEvent: false,
+            selectedColor: styleColors.background,
+            borderRadius: 4,
+            selectedTextColor: 'white',
+          },
+        };
+  }, [selectedDate, fullyDisabledDates]);
 
   /**
    * Handler for when the user changes the displayed month in the calendar.
@@ -89,23 +99,26 @@ const DatePickerModal: React.FC<Props> = ({
    * @param {DateData} day - The selected day data provided by the calendar.
    */
   const onPickDate = (day: DateData) => {
-    setSelectedDate(day.dateString);
+    const availability = available[day.dateString];
+    if (availability) {
+      setSelectedDate(day.dateString);
 
-    // Dispatch the selected date to the Redux state
-    dispatch(
-      addData({
-        marker: 'date',
-        type: 'date',
-        value: {
-          fullDate: day.dateString + 'T00:00:00.000Z', // ISO 8601 format
-          formattedValue: day.dateString + ' 00:00', // Custom format
-          formatString: 'YYYY-MM-DD', // Format string for reference
-        },
-      }),
-    );
+      dispatch(
+        addData({
+          marker: 'date',
+          type: 'date',
+          value: {
+            fullDate: day.dateString + 'T00:00:00.000Z', // ISO 8601 format
+            formattedValue: day.dateString + ' 00:00', // Custom format
+            formatString: 'YYYY-MM-DD', // Format string for reference
+          },
+        }),
+      );
+      dispatch(addAvailableTimeSlots(availability));
 
-    // Close the modal after selecting a date
-    setVisible(false);
+      // Close the modal after selecting a date
+      setVisible(false);
+    }
   };
 
   return (

@@ -112,6 +112,7 @@ export const AuthProvider = ({children}: Props) => {
    */
   const onInit = async () => {
     const refresh = await AsyncStorage.getItem('refresh-token');
+    console.log(refresh);
     reDefine(refresh || '', activeLanguage);
 
     await validateToken();

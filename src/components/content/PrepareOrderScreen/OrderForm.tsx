@@ -6,11 +6,11 @@ import {Keyboard, Platform} from 'react-native';
 import {useAppSelector} from '../../../state/hooks';
 import OrderFormInput from './OrderFormInput';
 import {KeyboardAwareScrollView} from 'react-native-keyboard-controller';
-import CalendarModal from './DatePickerModal';
 import TimePickerModal from './TimePickerModal';
 import {useLazyGetFormByMarkerQuery} from '../../../api';
 import Toast from 'react-native-toast-message';
 import Skeleton from '../../shared/Skeleton';
+import DatePickerModal from './DatePickerModal';
 
 type Props = {};
 
@@ -134,7 +134,7 @@ const OrderForm: React.FC<Props> = ({}: Props): React.ReactElement => {
         }
       })}
 
-      <CalendarModal visible={visibleDate} setVisible={setVisibleDate} />
+      <DatePickerModal visible={visibleDate} setVisible={setVisibleDate} />
       <TimePickerModal visible={visibleTime} setVisible={setVisibleTime} />
     </KeyboardAwareScrollView>
   );

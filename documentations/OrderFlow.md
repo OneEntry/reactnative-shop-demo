@@ -32,7 +32,7 @@ Once on the order preparation page ([PrepareOrderScreen]), pay attention to two 
 - The [OrderForm] component retrieves the form structure for the order from the CMS.
    - This includes all fields that can be filled out by the user and will later be saved with the order.
 - Pay attention to the **date field**. It implements an attribute of the interval type from the CMS. It allows for flexible customization of defining delivery time slots.
-- You can find related components and hooks here: `src/components/content/PrepareOrderScreen/Calendar`. Start with the component [DatePickerModal].
+- Study this component to understand the intervals - [DatePickerModal].
 - As the user fills out the form, the entered data is dynamically added to the order in **Redux**.
 
 ---

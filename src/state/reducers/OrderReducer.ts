@@ -14,6 +14,7 @@ export type IAppOrder = {
 type InitialStateType = {
   order: IAppOrder | undefined;
   currency?: string;
+  availableTimes?: [number, number] | [number, number, number[]];
   paymentMethods?: Array<{
     identifier: string;
   }>;
@@ -67,6 +68,13 @@ const orderSlice = createSlice({
       }
       state.currency = action.payload;
     },
+    addAvailableTimeSlots(state, action: PayloadAction<[number, number] | [number, number, number[]]>) {
+      console.log(action.payload);
+      state.availableTimes = action.payload;
+    },
+    clearTimeSlots(state) {
+      state.availableTimes = undefined;
+    },
   },
 });
 
@@ -75,6 +83,8 @@ export const {
   create: createOrder,
   addData,
   addProducts,
+  clearTimeSlots,
+  addAvailableTimeSlots,
   addPaymentAccountIdToOrder,
 } = orderSlice.actions;
 

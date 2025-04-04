@@ -38,14 +38,14 @@ const PriceString: React.FC<Props> = ({
             style={style}
             size={textSizes[size]}
             weight="bold">
-            {currency} {price - sale}
+            {currency} {price}
           </Paragraph>
           <Paragraph
             weight="bold"
             color={'lightGray'}
             size={textSizes[size]}
             style={[{textDecorationLine: 'line-through'}]}>
-            {price}
+            {price + sale}
           </Paragraph>
         </View>
       ) : (

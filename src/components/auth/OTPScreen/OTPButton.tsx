@@ -3,7 +3,7 @@ import {Alert, Keyboard, View} from 'react-native';
 import {useRoute} from '@react-navigation/native';
 import {AuthActivateRouteProp} from '../../../navigation/utils/hooks';
 import {logInUser, defineApi} from '../../../api';
-import {useAuth} from '../../../state/contexts/AuthContext';
+import {signInUser, useAuth} from '../../../state/contexts/AuthContext';
 import {navigate, navigateAuth} from '../../../navigation/utils/NavigatonRef';
 import {IError} from 'oneentry/dist/base/utils';
 import {useAppSelector} from '../../../state/hooks';
@@ -53,11 +53,7 @@ const OTPButton: React.FC<Props> = memo(({setValue, value}) => {
           }
 
           if (result) {
-            await logInUser({
-              method: 'email',
-              login: params.email,
-              password: params.password,
-            });
+            await signInUser(params.email, params.password);
 
             authenticate(); // Trigger re-authentication.
             navigate('home'); // Navigate to the home screen.

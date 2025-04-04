@@ -1,6 +1,6 @@
 import {useAppSelector} from '../../../state/hooks';
 import {usePrepareOrderData} from '../../../hooks/content/PrepareOrderScreen/usePrepareOrderData';
-import React, { Dispatch, memo, useCallback, useEffect } from "react";
+import React, { Dispatch, memo, useCallback, useEffect, useMemo } from "react";
 import {navigate} from '../../../navigation/utils/NavigatonRef';
 import ErrorBlock from '../../shared/ErrorBlock';
 import {ScrollView, View} from 'react-native';
@@ -32,7 +32,7 @@ const ItemsInOrderList: React.FC<Props> = ({
   /**
    * Retrieves fresh list of products data.
    */
-  const ids = items.map(item => item.id) || [];
+  const ids = useMemo(() => items.map(item => item.id) || [], []);
   const {products} = useGetProductsByIds({ids});
 
   /**

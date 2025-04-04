@@ -9,12 +9,14 @@ import Back from '../../../assets/icons/back.svg';
 import {useNavigation} from '@react-navigation/native';
 type Props = TouchableOpacityProps;
 
-const GoBackButton: React.FC<Props> = ({style}) => {
+const GoBackButton: React.FC<Props> = ({style, ...rest}) => {
   const navigation = useNavigation();
   const onPress = () => navigation.goBack();
   return (
     <View>
-      <TouchableOpacity onPress={onPress} style={[styles.button, style]}>
+      <TouchableOpacity
+        onPress={rest.onPress || onPress}
+        style={[styles.button, style]}>
         <Back />
       </TouchableOpacity>
     </View>

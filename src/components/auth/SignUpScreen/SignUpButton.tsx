@@ -91,7 +91,6 @@ const SignUpButton: React.FC<Props> = ({}) => {
           authenticate();
           navigate('home');
         }
-        dispatch(clearAllFieldsSignUp());
 
         if (result.isActivation) {
           navigateAuth('activate_user', {

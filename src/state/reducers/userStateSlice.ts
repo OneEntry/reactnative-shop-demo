@@ -91,7 +91,6 @@ const userStateSlice = createSlice({
      * @param {PayloadAction<number>} action - The action payload containing the product ID.
      */
     decreaseQuantity: (state, action: PayloadAction<number>) => {
-      console.log('decrease quantity');
       const item = state.cart.find(item => item.id === action.payload);
       if (item?.quantity > 1) {
         item.quantity -= 1;
@@ -105,7 +104,6 @@ const userStateSlice = createSlice({
      * @param {PayloadAction<number>} action - The action payload containing the product ID.
      */
     toggleCartItemSelect: (state, action: PayloadAction<number>) => {
-      console.log('toggle cart');
       const existing = state.cart.find(item => item.id === action.payload);
       if (existing) {
         const selected = existing.selected;
@@ -136,7 +134,6 @@ const userStateSlice = createSlice({
      * @param {PayloadAction<Partial<UserState>>} action - The action payload containing partial user state data.
      */
     initializeUserState: (state, action: PayloadAction<Partial<UserState>>) => {
-      console.log('init');
       const incomingCart = action.payload.cart || [];
       const incomingFavorites = action.payload.favorites || [];
       // Добавляем selected: true если отсутствует
@@ -148,9 +145,20 @@ const userStateSlice = createSlice({
       const mergedCart = normalizedCart.concat(state.cart);
       const mergedFavorites = incomingFavorites.concat(state.favorites);
 
+      const uniqueCart = Array.from(
+        mergedCart
+          .reduce((acc, item) => {
+            if (!acc.has(item.id)) {
+              acc.set(item.id, item);
+            }
+            return acc;
+          }, new Map())
+          .values(),
+      );
+
       return {
         favorites: mergedFavorites,
-        cart: mergedCart,
+        cart: uniqueCart,
         isUser: true,
       };
     },

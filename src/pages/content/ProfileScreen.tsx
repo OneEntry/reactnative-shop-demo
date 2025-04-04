@@ -1,5 +1,5 @@
-import React from 'react';
-import {NavigationProps} from '../../navigation/types/types';
+import React, {useCallback, useEffect, useLayoutEffect, useState} from 'react';
+import {NavigationProps, useAppNavigation} from '../../navigation/types/types';
 import {Screen} from '../../components/ui/templates/Screen';
 import {useAuth} from '../../state/contexts/AuthContext';
 import {
@@ -8,13 +8,20 @@ import {
   RemoveUserButton,
 } from '../../components/content/ProfileScreen';
 import UnauthorizedBlock from '../../components/shared/UnauthorizedBlock';
+import {useFocusEffect} from '@react-navigation/native';
 
 const ProfileScreen: React.FC<NavigationProps> = ({}) => {
   const {errorPage, user} = useAuth();
   const [editing, setEditing] = React.useState<boolean>(false);
-  if (errorPage && !user) {
-    return <UnauthorizedBlock page={errorPage} />;
-  }
+  const navigation = useAppNavigation();
+
+  useFocusEffect(
+    useCallback(() => {
+      if (!user) {
+        navigation.replace('Auth', {screen: 'auth_hone'});
+      }
+    }, [user]),
+  );
 
   if (!user) {
     return null;

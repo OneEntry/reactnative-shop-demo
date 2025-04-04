@@ -37,7 +37,7 @@ const TimePickerModal: React.FC<Props> = ({visible, setVisible}) => {
 
   return (
     <CustomModal setVisible={setVisible} visible={visible} title={'Time'}>
-      <View className={'bg-white flex-1 justify-center'}>
+      <View className={'bg-white flex-1 justify-center items-center'}>
         <TimePicker
           setActive={setSelectedTime}
           active={selectedTime}

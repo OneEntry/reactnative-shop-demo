@@ -43,8 +43,8 @@ export const FormCaptcha = forwardRef<RecaptchaRef, Props>(
       <View>
         <Recaptcha
           ref={ref}
-          siteKey={captchaKey}
-          baseUrl={captchaDomain}
+          siteKey={'6LfZ4XApAAAAABApFDQvVf9LvOCOM79M1IBdkdjq'}
+          baseUrl={'https://' + captchaDomain}
           onVerify={onVerify}
           onExpire={onExpire}
           onError={onError}
