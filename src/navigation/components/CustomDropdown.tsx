@@ -1,9 +1,11 @@
-import React, {memo, useContext, useEffect, useState} from 'react';
+import React, {memo, useContext} from 'react';
 import {StyleSheet, Text, View} from 'react-native';
 import {Dropdown} from 'react-native-element-dropdown';
 import {LanguageContext} from '../../state/contexts/LanguageContext';
-import {RTKApi} from '../../api';
+import {reDefine} from '../../api';
 import {useAppDispatch} from '../../state/hooks';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import {RTKApi} from '../../api/api/RTKApi';
 
 export type DropdownItem = {
   label: any;
@@ -15,13 +17,8 @@ interface Props {
 }
 
 const CustomDropdown: React.FC<Props> = ({data}) => {
-  const [value, setValue] = useState<string>();
   const {setActiveLanguage, activeLanguage} = useContext(LanguageContext);
   const dispatch = useAppDispatch();
-
-  useEffect(() => {
-    setValue(activeLanguage);
-  }, [activeLanguage]);
 
   const renderItem = (item: DropdownItem) => {
     return (
@@ -41,10 +38,12 @@ const CustomDropdown: React.FC<Props> = ({data}) => {
       maxHeight={300}
       labelField="label"
       valueField="value"
-      value={value}
-      onChange={(item: DropdownItem) => {
-        setActiveLanguage(item.value);
+      value={activeLanguage}
+      onChange={async (item: DropdownItem) => {
+        const refresh = await AsyncStorage.getItem('refresh-token');
         dispatch(RTKApi.util.resetApiState());
+        reDefine(refresh || '', item.value);
+        setActiveLanguage(item.value);
       }}
       renderItem={renderItem}
     />

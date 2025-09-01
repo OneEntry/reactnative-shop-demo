@@ -63,6 +63,9 @@ export const FeaturedObjectItem = ({
             }>
             <View className={'w-[26px] h-[26px]'}>
               <Image
+                key={
+                  attributes?.stickers?.value[0]?.extended?.value?.downloadLink
+                }
                 source={{
                   uri: attributes?.stickers?.value[0]?.extended?.value
                     ?.downloadLink,

@@ -55,6 +55,8 @@ const useGetSchedule = ({
     attributeMarker: 'shipping_interval',
   });
 
+  console.log(schedule);
+
   /**
    * Computes available time slots and fully disabled dates for the displayed month.
    * @returns {{
@@ -73,7 +75,8 @@ const useGetSchedule = ({
       // No schedule data, return all days as available
       return {available: []};
     }
-    const intervals = schedule?.localizeInfos?.intervals;
+    // @ts-ignore
+    const intervals = schedule?.value[0]?.values;
 
     if (!intervals?.length) {
       // No intervals defined, return all days as available
@@ -87,14 +90,14 @@ const useGetSchedule = ({
     let currentDate = dayjsMonth.startOf('month');
     const lastDayOfMonth = dayjsMonth.endOf('month');
 
+    const today = dayjs().startOf('day');
     // Loop through each day of the month
     while (
       currentDate.isSame(lastDayOfMonth) ||
       currentDate.isBefore(lastDayOfMonth)
     ) {
       // Disable past dates
-      if (currentDate.isBefore(dayjs(Date.now()))) {
-        fullyDisabledDates.push(currentDate.toISOString());
+      if (currentDate.isBefore(today)) {
         currentDate = currentDate.add(1, 'day');
         continue;
       }
@@ -114,11 +117,9 @@ const useGetSchedule = ({
           });
 
           if (match) {
-            if (exception.externalTimes) {
+            if (exception.times) {
               // Collect times to exclude from this date interval
-              excludeTimes = exception.externalTimes?.map(time =>
-                dayjs(time[0]).hour(),
-              );
+              excludeTimes = exception.times;
             } else {
               // No times means the day is fully disabled
               isDisabledByException = true;
@@ -133,7 +134,7 @@ const useGetSchedule = ({
         }
 
         // Validate the interval's date range
-        const [startDateStr, endDateStr] = interval?.range || [];
+        const [startDateStr, endDateStr] = interval?.dates || [];
         if (!startDateStr || !endDateStr) continue;
         let startDate = dayjs(startDateStr);
         const endDate = dayjs(endDateStr);
@@ -151,14 +152,13 @@ const useGetSchedule = ({
           if (match) {
             if (excludeTimes.length) {
               available[currentDate.format('YYYY-MM-DD')] = [
-                interval?.intervals[0]?.start?.hours || 10,
-                interval?.intervals[0]?.end?.hours,
+                interval?.times,
                 excludeTimes,
               ];
             } else {
               available[currentDate.format('YYYY-MM-DD')] = [
-                interval?.intervals[0]?.start?.hours || 10,
-                interval?.intervals[0]?.end?.hours,
+                interval?.times,
+                undefined,
               ];
             }
             break;

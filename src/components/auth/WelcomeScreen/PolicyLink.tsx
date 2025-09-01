@@ -2,7 +2,6 @@ import React from 'react';
 import {Linking, TouchableOpacity} from 'react-native';
 import {Paragraph} from '../../ui/texts/Paragraph';
 import {useAppSelector} from '../../../state/hooks';
-import {useSafeAreaInsets} from 'react-native-safe-area-context';
 
 type Props = {};
 
@@ -10,16 +9,14 @@ const PolicyLink: React.FC<Props> = ({}) => {
   const {privacy_policy} = useAppSelector(
     state => state.systemContentReducer.content,
   );
-  const {top} = useSafeAreaInsets();
+  const {privacy_url} = useAppSelector(
+    state => state.systemContentReducer.content,
+  );
 
   return (
     <TouchableOpacity
       className={'w-full items-center self-end'}
-      onPress={() =>
-        Linking.openURL(
-          'https://account.oneentry.cloud/authentication/register#policy',
-        )
-      }>
+      onPress={() => Linking.openURL(privacy_url)}>
       <Paragraph
         className={'underline underline-offset-1'}
         size={18}

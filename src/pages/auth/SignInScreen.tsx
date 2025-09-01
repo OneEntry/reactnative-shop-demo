@@ -2,9 +2,9 @@ import React from 'react';
 import {Screen} from '../../components/ui/templates/Screen';
 import {SignInForm} from '../../components/auth/SignInScreen';
 
-type Props = {};
+type Props = object;
 
-const SignInScreen: React.FC<Props> = ({}) => {
+const SignInScreen: React.FC<Props> = () => {
   return (
     <Screen isHideKeyboard isFull white edges={['horizontal']}>
       <SignInForm />

@@ -10,9 +10,9 @@ import {navigateAuth} from '../../navigation/utils/NavigatonRef';
 import NormalInput from '../../components/shared/NormalInput';
 import {InputValue} from '../../components/ui/inputs/AppInput';
 
-type Props = {};
+type Props = object;
 
-const NewPasswordScreen: React.FC<Props> = ({}) => {
+const NewPasswordScreen: React.FC<Props> = () => {
   const [password, setPassword] = useState<string>('');
   const [repeatPassword, setRepeatPassword] = useState<string>('');
   const {

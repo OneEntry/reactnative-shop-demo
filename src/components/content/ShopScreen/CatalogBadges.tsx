@@ -1,5 +1,5 @@
 import {BadgeList} from '../../shared/Badges';
-import {Dispatch, memo, useEffect, useMemo, useState} from 'react';
+import {memo, useEffect, useMemo, useState} from 'react';
 import {IFilterParams} from 'oneentry/dist/products/productsInterfaces';
 import {Screen} from '../../ui/templates/Screen';
 import {useAppDispatch, useAppSelector} from '../../../state/hooks';
@@ -12,16 +12,12 @@ import {
 import {useGetAttributesByMarkerQuery} from '../../../api/api/RTKApi';
 import Skeleton from '../../shared/Skeleton';
 
-type Props = {
-  setSortOption: Dispatch<'low' | 'high' | undefined>;
-  refreshing: boolean;
-};
-export const CatalogBadges = memo(({setSortOption, refreshing}: Props) => {
-  const {
-    data: attributes,
-    isLoading,
-    refetch,
-  } = useGetAttributesByMarkerQuery({setMarker: 'filter_badge'});
+type Props = object;
+
+const CatalogBadges: React.FC<Props> = () => {
+  const {data: attributes, isLoading} = useGetAttributesByMarkerQuery({
+    setMarker: 'filter_badge',
+  });
   const {badgeFilterActive: activeBadge, search: allFilters} = useAppSelector(
     state => state.filterReducer,
   );
@@ -41,10 +37,6 @@ export const CatalogBadges = memo(({setSortOption, refreshing}: Props) => {
       }
     }
   }, [filtersLength]);
-
-  useEffect(() => {
-    refetch();
-  }, [refreshing]);
 
   const filters = useMemo(() => {
     if (!attributes) {
@@ -98,7 +90,6 @@ export const CatalogBadges = memo(({setSortOption, refreshing}: Props) => {
       dispatch(addFilter(filters[index - 1]));
     }
     if (index === 0) {
-      setSortOption(undefined);
       return dispatch(removeAllFilters());
     }
     dispatch(setBadgeFilterActive(index));
@@ -126,4 +117,6 @@ export const CatalogBadges = memo(({setSortOption, refreshing}: Props) => {
       />
     </Screen>
   );
-});
+};
+
+export default memo(CatalogBadges);

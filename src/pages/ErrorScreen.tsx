@@ -4,9 +4,9 @@ import {Paragraph} from '../components/ui/texts/Paragraph';
 import {View} from 'react-native';
 import {useErrorRoute} from '../navigation';
 
-type Props = {};
+type Props = object;
 
-const ErrorScreen: React.FC<Props> = ({}) => {
+const ErrorScreen: React.FC<Props> = () => {
   const {
     params: {page},
   } = useErrorRoute();

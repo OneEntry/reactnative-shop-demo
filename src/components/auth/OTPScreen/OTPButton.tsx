@@ -1,14 +1,20 @@
-import React, {Dispatch, memo} from 'react';
+import React, {Dispatch, memo, useEffect} from 'react';
 import {Alert, Keyboard, View} from 'react-native';
 import {useRoute} from '@react-navigation/native';
 import {AuthActivateRouteProp} from '../../../navigation/utils/hooks';
 import {logInUser, defineApi} from '../../../api';
 import {signInUser, useAuth} from '../../../state/contexts/AuthContext';
-import {navigate, navigateAuth} from '../../../navigation/utils/NavigatonRef';
+import {
+  nativeNavigate,
+  navigate,
+  navigateAuth,
+} from '../../../navigation/utils/NavigatonRef';
 import {IError} from 'oneentry/dist/base/utils';
-import {useAppSelector} from '../../../state/hooks';
+import {useAppDispatch, useAppSelector} from '../../../state/hooks';
 import useTextManager from '../../../hooks/auth/OTPScreen/useTextManager';
 import BigButton from '../../shared/BigButton';
+import {useAppNavigation} from '../../../navigation/types/types';
+import {resetScreen} from '../../../state/reducers/lastVisitedScreenSlice';
 
 /**
  * A React component that provides a submit button for OTP verification.
@@ -22,10 +28,12 @@ import BigButton from '../../shared/BigButton';
  */
 const OTPButton: React.FC<Props> = memo(({setValue, value}) => {
   const {params} = useRoute<AuthActivateRouteProp>();
-  const {authenticate} = useAuth();
+  const {authenticate, user} = useAuth();
+  const dispatch = useAppDispatch();
   const {verify_now_text} = useAppSelector(
     state => state.systemContentReducer.content,
   );
+  const screen = useAppSelector(state => state.lastVisitedScreenReducer.screen);
 
   /**
    * Handles the submission of the OTP code.
@@ -56,7 +64,6 @@ const OTPButton: React.FC<Props> = memo(({setValue, value}) => {
             await signInUser(params.email, params.password);
 
             authenticate(); // Trigger re-authentication.
-            navigate('home'); // Navigate to the home screen.
           }
         }
       }
@@ -79,6 +86,13 @@ const OTPButton: React.FC<Props> = memo(({setValue, value}) => {
       Alert.alert(e.message); // Show an alert for any errors.
     }
   };
+
+  useEffect(() => {
+    if (user && screen) {
+      navigate(screen);
+      dispatch(resetScreen());
+    }
+  }, [user]);
 
   /**
    * Manages the text input and OTP verification logic.

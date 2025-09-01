@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React from 'react';
 import {StyleSheet, View} from 'react-native';
 import {Paragraph} from '../../ui/texts/Paragraph';
 import {Switch} from 'react-native-switch';
@@ -6,9 +6,9 @@ import {styleColors} from '../../../utils/consts';
 import {useAppDispatch, useAppSelector} from '../../../state/hooks';
 import {setAvailability} from '../../../state/reducers/FilterSlice';
 
-interface Props {
+type Props = {
   title?: string;
-}
+};
 
 const AvailabilityFilter: React.FC<Props> = ({title}) => {
   const available = useAppSelector(state => state.filterReducer.availability);

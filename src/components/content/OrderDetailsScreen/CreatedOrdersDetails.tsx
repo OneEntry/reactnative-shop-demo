@@ -11,6 +11,7 @@ import {defineApi} from '../../../api';
 import {IOrderByMarkerEntity} from 'oneentry/dist/orders/ordersInterfaces';
 import {navigate} from '../../../navigation/utils/NavigatonRef';
 import {IError} from 'oneentry/dist/base/utils';
+import {isError} from '../../../api/api/RTKApi';
 
 type Props = {
   orderProps?: IOrderByMarkerEntity;
@@ -52,6 +53,7 @@ const CreatedOrdersDetails: React.FC<Props> = ({orderProps}) => {
             quantity: product.quantity || 1,
           };
         });
+
         const result = await defineApi.Orders.updateOrderByMarkerAndId(
           'order',
           order.id,
@@ -63,8 +65,8 @@ const CreatedOrdersDetails: React.FC<Props> = ({orderProps}) => {
           },
         );
 
-        if ((result as IError)?.statusCode >= 400) {
-          throw new Error((result as IError)?.message);
+        if (isError(result)) {
+          throw new Error(result?.message);
         }
       }
 

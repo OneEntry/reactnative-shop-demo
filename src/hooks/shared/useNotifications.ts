@@ -15,8 +15,8 @@ export const useNotifications = (): {
   token: string; // The FCM push token used for sending notifications.
 } => {
   const [expoPushToken, setExpoPushToken] = useState('');
-  const notificationListener = useRef<Notifications.Subscription>();
-  const responseListener = useRef<Notifications.Subscription>();
+  const notificationListener = useRef<Notifications.Subscription>(null);
+  const responseListener = useRef<Notifications.Subscription>(null);
   const [shouldSchedule, setShouldSchedule] = useState(true);
 
   useEffect(() => {
@@ -62,12 +62,8 @@ export const useNotifications = (): {
       Notifications.addNotificationResponseReceivedListener(response => {});
 
     return () => {
-      notificationListener.current &&
-        Notifications.removeNotificationSubscription(
-          notificationListener.current,
-        );
-      responseListener.current &&
-        Notifications.removeNotificationSubscription(responseListener.current);
+      notificationListener.current?.remove();
+      responseListener.current?.remove();
     };
   }, [shouldSchedule]);
 

@@ -157,7 +157,7 @@ const userStateSlice = createSlice({
       );
 
       return {
-        favorites: mergedFavorites,
+        favorites: [...new Set(mergedFavorites)],
         cart: uniqueCart,
         isUser: true,
       };
@@ -199,6 +199,31 @@ const userStateSlice = createSlice({
       console.log('shipping');
       state.shippingPrice = action.payload;
     },
+    /**
+     * Updates cart item selection based on product availability status.
+     * If product was out_of_stock with selected: false and becomes in_stock, sets selected: true.
+     *
+     * @function updateCartItemAvailability
+     * @param {UserState} state - The current state of the user's state slice.
+     * @param {PayloadAction<{productId: number, wasOutOfStock: boolean, isNowInStock: boolean}>} action - The action payload containing product availability change info.
+     */
+    updateCartItemAvailability: (
+      state,
+      action: PayloadAction<{
+        productId: number;
+        wasOutOfStock: boolean;
+        isNowInStock: boolean;
+      }>,
+    ) => {
+      const {productId, wasOutOfStock, isNowInStock} = action.payload;
+      const cartItem = state.cart.find(item => item.id === productId);
+
+      if (cartItem && wasOutOfStock && isNowInStock && !cartItem.selected) {
+        // Если продукт был out_of_stock с selected: false и теперь стал in_stock,
+        // автоматически делаем selected: true
+        cartItem.selected = true;
+      }
+    },
   },
 });
 
@@ -213,6 +238,7 @@ export const {
   addCartCurrency,
   decreaseQuantity,
   addShippingPrice,
+  updateCartItemAvailability,
 } = userStateSlice.actions;
 
 export default userStateSlice.reducer;
@@ -228,7 +254,10 @@ export const checkFavoritesItemById = (state: RootState, id: number) => {
 };
 
 export const isCartNotEmpty = (state: RootState) => {
-  return !!state.userStateReducer.cart.length;
+  return (
+    !!state.userStateReducer.cart.length &&
+    state.userStateReducer.cart.some(item => item.selected === true)
+  );
 };
 
 export const getCartLength = (state: RootState) => {

@@ -1,4 +1,4 @@
-import React, {useEffect} from 'react';
+import React from 'react';
 import {Screen} from '../../components/ui/templates/Screen';
 import WebView from 'react-native-webview';
 import FlexLoader from '../../components/ui/space/FlexLoader';
@@ -6,11 +6,13 @@ import {RouteProp, useFocusEffect, useRoute} from '@react-navigation/native';
 import {DrawerStackNavigatorParamList} from '../../navigation';
 import {navigate} from '../../navigation/utils/NavigatonRef';
 import {Modal, View} from 'react-native';
-import {useLazyGetPaymentSessionByIdQuery} from '../../api';
 import {useAppNavigation} from '../../navigation/types/types';
 import {useAppSelector} from '../../state/hooks';
+import BigButton from '../../components/shared/BigButton';
+import {Paragraph} from '../../components/ui/texts/Paragraph';
+import {useLazyGetPaymentSessionByIdQuery} from '../../api/api/RTKApi';
 
-type Props = {};
+type Props = object;
 
 /**
  * PaymentPayScreen Component
@@ -26,7 +28,7 @@ type Props = {};
  * - Monitoring the payment status and redirecting the user to appropriate screens
  *   based on whether the payment was successful or not.
  */
-const PaymentPayScreen: React.FC<Props> = ({}) => {
+const PaymentPayScreen: React.FC<Props> = () => {
   const route =
     useRoute<RouteProp<DrawerStackNavigatorParamList, 'payment_method'>>();
   const id = route.params?.orderId;
@@ -50,6 +52,7 @@ const PaymentPayScreen: React.FC<Props> = ({}) => {
     canGoBack: boolean;
   }) => {
     const {url} = navState;
+    console.log(url);
     const res = await getPaymentStatus({id}, false);
     if (res?.data) {
       // @ts-ignore
@@ -78,6 +81,22 @@ const PaymentPayScreen: React.FC<Props> = ({}) => {
           <WebView
             cacheEnabled={false}
             startInLoadingState={true}
+            renderError={() => (
+              <View
+                className={
+                  'flex-1 items-center justify-center px-layout gap-5'
+                }>
+                <Paragraph size={24} color={'red'}>
+                  {unsuccessful_payment_text}
+                </Paragraph>
+                <BigButton
+                  title={'Try again'}
+                  action={() => {
+                    navigate('message', {message: unsuccessful_payment_text});
+                  }}
+                />
+              </View>
+            )}
             onNavigationStateChange={onNavigationStateChange}
             renderLoading={() => <FlexLoader />}
             source={{uri: paymentUrl}}

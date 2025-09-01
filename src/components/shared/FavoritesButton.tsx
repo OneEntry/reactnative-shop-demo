@@ -35,9 +35,17 @@ const FavoritesButton: React.FC<Props> = ({id, size = 'md'}) => {
 
       if (user) {
         if (!isFavorites) {
-          await defineApi.Events.subscribeByMarker('product_status_in_stock', id);
+          await defineApi.Events.subscribeByMarker(
+            'product_status_in_stock',
+            id,
+          );
+          await defineApi.Events.subscribeByMarker('status_out_of_stock', id);
         } else {
-          await defineApi.Events.unsubscribeByMarker('product_status_in_stock', id);
+          await defineApi.Events.unsubscribeByMarker(
+            'product_status_in_stock',
+            id,
+          );
+          await defineApi.Events.unsubscribeByMarker('status_out_of_stock', id);
         }
       }
     } catch (e) {

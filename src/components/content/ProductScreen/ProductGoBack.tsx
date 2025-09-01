@@ -8,9 +8,9 @@ import {navigate} from '../../../navigation/utils/NavigatonRef';
 import {DrawerActions} from '@react-navigation/native';
 import {useAppNavigation} from '../../../navigation/types/types';
 
-interface Props {}
+type Props = object;
 
-const ProductGoBack: React.FC<Props> = ({}) => {
+const ProductGoBack: React.FC<Props> = () => {
   const insets = useSafeAreaInsets();
   const navigation = useAppNavigation();
 

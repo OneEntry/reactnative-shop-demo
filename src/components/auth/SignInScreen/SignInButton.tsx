@@ -1,9 +1,12 @@
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import BigButton from '../../shared/BigButton';
-import {useAppSelector} from '../../../state/hooks';
+import {useAppDispatch, useAppSelector} from '../../../state/hooks';
 import {signInUser, useAuth} from '../../../state/contexts/AuthContext';
 import {navigate, navigateAuth} from '../../../navigation/utils/NavigatonRef';
 import Toast from 'react-native-toast-message';
+import {useAppNavigation} from '../../../navigation/types/types';
+import {CommonActions} from '@react-navigation/native';
+import {resetScreen} from '../../../state/reducers/lastVisitedScreenSlice';
 
 type Props = {
   login: string;
@@ -15,7 +18,9 @@ const SignInButton: React.FC<Props> = ({login, password}) => {
     state => state.systemContentReducer.content,
   );
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  const {authenticate} = useAuth();
+  const dispatch = useAppDispatch();
+  const {authenticate, user} = useAuth();
+  const screen = useAppSelector(state => state.lastVisitedScreenReducer.screen);
 
   const onSignIn = async () => {
     setIsLoading(true);
@@ -24,7 +29,6 @@ const SignInButton: React.FC<Props> = ({login, password}) => {
 
     if (result.isSuccess) {
       authenticate();
-      return navigate('home');
     }
     if (result.isActivation) {
       return navigateAuth('activate_user', {
@@ -41,6 +45,13 @@ const SignInButton: React.FC<Props> = ({login, password}) => {
       });
     }
   };
+
+  useEffect(() => {
+    if (user && screen) {
+      navigate(screen);
+      dispatch(resetScreen());
+    }
+  }, [user]);
 
   return (
     <BigButton

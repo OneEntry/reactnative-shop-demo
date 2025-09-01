@@ -1,14 +1,19 @@
-import React, { memo, useMemo } from "react";
-import {FlatList} from 'react-native';
+import React, {memo, useMemo} from 'react';
+import {FlatList, View} from 'react-native';
 import CartItem from './CartItem';
 import {useAppSelector} from '../../../../state/hooks';
 import Footer from '../../../ui/space/Footer';
 import EmptyContentBlock from '../../../shared/EmptyContentBlock';
 import useWebSocket from '../../../../hooks/shared/useWebSocket';
 import useGetProductsByIds from '../../../../hooks/shared/useGetProductsByIds';
-import { it } from "@jest/globals";
+import {IProductsEntity} from 'oneentry/dist/products/productsInterfaces';
+import {CartItemType} from '../../../../state/reducers/userStateSlice';
 
-interface Props {}
+interface Props {
+  products: IProductsEntity[];
+  setProducts: (products: IProductsEntity[]) => void;
+  items: CartItemType[];
+}
 
 /**
  * A React component that renders a list of cart items using a FlatList.
@@ -18,17 +23,11 @@ interface Props {}
  * @component CartItemsList
  * @returns {React.ReactElement} A React element containing the list of cart items.
  */
-const CartItemsList: React.FC<Props> = ({}): React.ReactElement => {
-  const items = useAppSelector(state => state.userStateReducer.cart);
-  const ids = useMemo(() => items.map(item => item.id) || [], [items]);
-
-  /**
-   * Fetches product details based on the product IDs.
-   */
-  const {products, setProducts} = useGetProductsByIds({
-    ids,
-  });
-
+const CartItemsList: React.FC<Props> = ({
+  products,
+  setProducts,
+  items,
+}): React.ReactElement => {
   useWebSocket({products, setProducts});
   const {empty_cart_plug} = useAppSelector(
     state => state.systemContentReducer.content,
@@ -36,6 +35,10 @@ const CartItemsList: React.FC<Props> = ({}): React.ReactElement => {
   const cart_item_options = useAppSelector(
     state => state.systemContentReducer.cart_item_options,
   );
+
+  if (items?.length && !products?.length) {
+    return <View className={'flex-1 animate-pulse bg-lightGray'} />;
+  }
 
   return (
     <FlatList

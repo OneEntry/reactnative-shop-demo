@@ -9,9 +9,9 @@ import {
 } from '../../../state/reducers/FilterSlice';
 import {Paragraph} from '../../ui/texts/Paragraph';
 
-interface Props {}
+type Props = object;
 
-const PriceToInput: React.FC<Props> = ({}) => {
+const PriceToInput: React.FC<Props> = () => {
   const {priceToSelected} = useAppSelector(state => state.filterReducer);
   const priceTo = useAppSelector(
     state => state.systemContentReducer.content.price_to,

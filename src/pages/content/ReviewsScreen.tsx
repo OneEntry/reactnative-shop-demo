@@ -11,7 +11,7 @@ import {
 } from '../../components/content/ReviewsScreen';
 import {useGetProductByIdQuery} from '../../api/api/RTKApi';
 
-const ReviewsScreen: React.FC = ({}) => {
+const ReviewsScreen: React.FC = () => {
   const route = useRoute<RouteProp<DrawerStackNavigatorParamList, 'reviews'>>();
   const {
     data: product,

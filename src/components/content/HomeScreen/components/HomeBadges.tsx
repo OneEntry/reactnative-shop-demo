@@ -18,7 +18,10 @@ type Props = {
  * @param {Props} props - Component props.
  * @returns {React.ReactElement} - Rendered component.
  */
-const HomeBadges: React.FC<Props> = ({attributes, loading}: Props): React.ReactElement => {
+const HomeBadges: React.FC<Props> = ({
+  attributes,
+  loading,
+}: Props): React.ReactElement => {
   const badges = useMemo<[]>(() => {
     return attributes?.badges?.value?.map((badge: IListTitle) => {
       if (!badge?.title || !badge?.value) {
@@ -36,11 +39,13 @@ const HomeBadges: React.FC<Props> = ({attributes, loading}: Props): React.ReactE
     // @ts-ignore
     const field = attributes?.badges?.value[value];
 
+    console.log('=>(HomeBadges.tsx:42) field', field);
+
     if (!field?.value) {
       return;
     }
 
-    navigate(field.value, {});
+    navigate('shop', {pageUrl: field.value});
   };
 
   return (

@@ -3,9 +3,9 @@ import {navigateAuth} from '../../navigation/utils/NavigatonRef';
 import {Button} from '../ui/buttons/Button';
 import {styleColors} from '../../utils/consts';
 
-type Props = {};
+type Props = object;
 
-const CreateAccountButton: React.FC<Props> = ({}) => {
+const CreateAccountButton: React.FC<Props> = () => {
   return (
     <Button
       className={

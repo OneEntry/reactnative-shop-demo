@@ -1,4 +1,4 @@
-import React, {useCallback, useEffect, useLayoutEffect, useState} from 'react';
+import React, {useCallback} from 'react';
 import {NavigationProps, useAppNavigation} from '../../navigation/types/types';
 import {Screen} from '../../components/ui/templates/Screen';
 import {useAuth} from '../../state/contexts/AuthContext';
@@ -7,18 +7,25 @@ import {
   ProfileContent,
   RemoveUserButton,
 } from '../../components/content/ProfileScreen';
-import UnauthorizedBlock from '../../components/shared/UnauthorizedBlock';
-import {useFocusEffect} from '@react-navigation/native';
+import {useFocusEffect, useRoute} from '@react-navigation/native';
+import {useAppDispatch} from '../../state/hooks';
+import {setScreen} from '../../state/reducers/lastVisitedScreenSlice';
 
-const ProfileScreen: React.FC<NavigationProps> = ({}) => {
-  const {errorPage, user} = useAuth();
+const ProfileScreen: React.FC<NavigationProps> = () => {
+  const {user} = useAuth();
   const [editing, setEditing] = React.useState<boolean>(false);
+  const dispatch = useAppDispatch();
+  const params = useRoute();
   const navigation = useAppNavigation();
 
   useFocusEffect(
     useCallback(() => {
       if (!user) {
-        navigation.replace('Auth', {screen: 'auth_hone'});
+        // @ts-ignore
+        navigation.replace('Auth');
+        dispatch(setScreen(params.name));
+
+        return () => {};
       }
     }, [user]),
   );

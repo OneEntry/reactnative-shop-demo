@@ -13,11 +13,8 @@ import {useAppSelector} from '../../state/hooks';
 import {DrawerActions} from '@react-navigation/native';
 import {DIcon} from './DIcon';
 import Footer from '../../components/ui/space/Footer';
-import FlexLoader from '../../components/ui/space/FlexLoader';
-import {IMenusPages} from 'oneentry/dist/menus/menusInterfaces';
-import ErrorBlock from '../../components/shared/ErrorBlock';
+import {IMenusEntity, IMenusPages} from 'oneentry/dist/menus/menusInterfaces';
 import {navigate} from '../utils/NavigatonRef';
-import {useGetMenuQuery} from '../../api/api/RTKApi';
 
 type NestedPage = IMenusPages & {children?: IMenusPages[]};
 
@@ -59,14 +56,9 @@ export const createNestedArray = (
  * @returns {React.ReactElement} - Rendered component.
  */
 export function CustomDrawerContent(
-  props: DrawerContentComponentProps,
+  props: DrawerContentComponentProps & {menu: IMenusEntity},
 ): React.ReactElement {
-  const {navigation} = props;
-  const {
-    data: menu,
-    isLoading: loading,
-    error,
-  } = useGetMenuQuery({marker: 'main'});
+  const {navigation, menu} = props;
   const [nestedPages, setNestedPages] = useState<NestedPage[]>([]);
   const {languagesData} = useContext(LanguageContext);
   const logo = useAppSelector(
@@ -81,13 +73,8 @@ export function CustomDrawerContent(
     }
   }, [menu]);
 
-  if (error) {
-    return <ErrorBlock errorTitle={error.toString()} />;
-  }
-
   return (
     <DrawerContentScrollView className={'bg-white w-full h-full'} {...props}>
-      {loading && <FlexLoader />}
       {nestedPages && (
         <>
           {/* Logo section */}
@@ -131,7 +118,13 @@ export function CustomDrawerContent(
               />
               {page.children &&
                 page.children.map(child => {
-                  return <SubPage key={child.pageUrl} page={child} />;
+                  return (
+                    <SubPage
+                      parentUrl={page.pageUrl}
+                      key={child.pageUrl}
+                      page={child}
+                    />
+                  );
                 })}
             </View>
           ))}
@@ -153,7 +146,13 @@ export function CustomDrawerContent(
  * @param {IMenusPages} props.page - The page object to render.
  * @returns {React.ReactElement} - Rendered component.
  */
-const SubPage = ({page}: {page: IMenusPages}) => {
+const SubPage = ({
+  page,
+  parentUrl,
+}: {
+  page: IMenusPages;
+  parentUrl?: string;
+}) => {
   const {setActive, active} = useContext(OpenDrawerContext);
 
   return (
@@ -166,6 +165,12 @@ const SubPage = ({page}: {page: IMenusPages}) => {
       label={page?.localizeInfos?.menuTitle || 'no localization'}
       onPress={() => {
         setActive(page.pageUrl);
+        if (parentUrl === 'shop') {
+          return navigate(parentUrl, {
+            pageUrl: page.pageUrl,
+            title: page?.pageUrl,
+          });
+        }
         navigate(page?.pageUrl, {
           pageUrl: page?.pageUrl,
           title: page?.pageUrl,

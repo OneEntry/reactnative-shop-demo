@@ -8,7 +8,6 @@
 import {createContext, ReactNode, useContext, useEffect, useState} from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {defineApi, reDefine} from '../../api';
-import {useLazyGetMeQuery} from '../../api';
 import {IUserEntity} from 'oneentry/dist/users/usersInterfaces';
 import {LanguageContext} from './LanguageContext';
 import {useAppDispatch} from '../hooks';
@@ -21,6 +20,7 @@ import {
   IAuthPostBody,
   ISignUpData,
 } from 'oneentry/dist/auth-provider/authProvidersInterfaces';
+import {useLazyGetMeQuery} from '../../api/api/RTKApi';
 
 type ContextProps = {
   isLoading: boolean;
@@ -56,6 +56,7 @@ type Props = {
  */
 export const AuthProvider = ({children}: Props) => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
+
   /**
    * Lazy query to fetch the current user's data.
    */
@@ -89,8 +90,7 @@ export const AuthProvider = ({children}: Props) => {
       const res = await defineApi.Users.addFCMToken(pushToken);
       if ((res as IError)?.statusCode > 400) {
         throw new Error((res as IError)?.message);
-      }
-      setIsTokenSet(true); // Mark the token as set after successful update.
+      } // Mark the token as set after successful update.
     } catch (e) {
       console.log('=>(AuthContext.tsx:95) e', e);
     }
@@ -101,7 +101,9 @@ export const AuthProvider = ({children}: Props) => {
    */
   useEffect(() => {
     if (pushToken && !isTokenSet && user) {
-      updatePushToken().then(() => {});
+      console.log(pushToken);
+
+      updatePushToken().then(() => setIsTokenSet(true));
     }
   }, [user, pushToken]);
 
@@ -112,7 +114,6 @@ export const AuthProvider = ({children}: Props) => {
    */
   const onInit = async () => {
     const refresh = await AsyncStorage.getItem('refresh-token');
-    console.log(refresh);
     reDefine(refresh || '', activeLanguage);
 
     await validateToken();
@@ -147,7 +148,7 @@ export const AuthProvider = ({children}: Props) => {
       // @ts-ignore
       if (response.statusCode >= 400) throw new Error(response.message);
     } catch (error) {
-      console.log('log out error');
+      console.error('log out error', error);
     } finally {
       await validateToken();
       setIsLoading(false);
@@ -159,7 +160,7 @@ export const AuthProvider = ({children}: Props) => {
    */
   const validateToken = async () => {
     try {
-      const res = await getUser({});
+      const res = await getUser();
       if (res?.error) {
         throw res.error;
       }
@@ -311,7 +312,11 @@ export const signUpUser = async (
     isSuccess: false,
   };
   try {
-    const registration = await defineApi.AuthProvider.signUp('email', data, 'en_US');
+    const registration = await defineApi.AuthProvider.signUp(
+      'email',
+      data,
+      'en_US',
+    );
     if (!registration || (registration as IError)?.statusCode >= 400) {
       throw new Error((registration as IError).message);
     }

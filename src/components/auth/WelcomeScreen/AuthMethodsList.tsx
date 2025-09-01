@@ -7,12 +7,16 @@ import {navigateAuth} from '../../../navigation/utils/NavigatonRef';
 import {LanguageContext} from '../../../state/contexts/LanguageContext';
 import {useGetAuthProvidersQuery} from '../../../api';
 import ErrorBlock from '../../shared/ErrorBlock';
+import {useAppSelector} from '../../../state/hooks';
 
 type Props = {};
 
 const AuthMethodsList: React.FC<Props> = ({}) => {
   const {activeLanguage} = useContext(LanguageContext);
   const {data, error, isLoading} = useGetAuthProvidersQuery(activeLanguage);
+  const {sign_in_with_email} = useAppSelector(
+    state => state.systemContentReducer.content,
+  );
 
   if (isLoading) {
     return <></>;
@@ -30,7 +34,7 @@ const AuthMethodsList: React.FC<Props> = ({}) => {
           paragraphStyle={{color: 'white'}}
           action={() => navigateAuth('auth_sign_in', {method: method.type})}
           key={method?.identifier + index}
-          title={'Sign in with Email'}
+          title={sign_in_with_email}
           Icon={<Email />}
         />
       ))}

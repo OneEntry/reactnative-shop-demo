@@ -67,7 +67,7 @@ const CustomInput = forwardRef<TextInput, Props>(
         );
       }
 
-      setValue({value: val, valid});
+      setValue({...value, value: val, valid});
     };
 
     return (
@@ -132,7 +132,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
     paddingVertical: 5,
     fontWeight: '400',
-    lineHeight: 20,
+    lineHeight: 16,
   },
   compactInput: {
     backgroundColor: styleColors.gray_v2,

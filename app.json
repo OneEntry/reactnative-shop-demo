@@ -13,10 +13,12 @@
     },
     "ios": {
       "googleServicesFile": "./GoogleService-Info.plist",
-      "bundleIdentifier": ""
+      "bundleIdentifier": "",
+      "associatedDomains": [],
+      "appleTeamId": ""
     },
     "android": {
-      "versionCode": 2,
+      "versionCode": 10,
       "googleServicesFile": "./google-services.json",
       "package": "",
       "softwareKeyboardLayoutMode": "pan",

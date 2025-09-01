@@ -1,4 +1,4 @@
-import React, {memo, useMemo} from 'react';
+import React, {memo, useContext, useEffect, useMemo} from 'react';
 import {CustomDrawerContent} from '../components/CustomDrawer';
 import {getHeaderTitle} from '@react-navigation/elements';
 import ContentTopBar from '../components/ContentTopBar';
@@ -28,10 +28,12 @@ import ReviewsScreen from '../../pages/content/ReviewsScreen';
 import ErrorBlock from '../../components/shared/ErrorBlock';
 import Loader from '../../components/ui/space/Loader';
 import BottomBar from '../components/BottomBar';
-import {useGetPagesQuery} from '../../api/api/RTKApi';
 import MessageScreen from '../../pages/content/MessageScreen';
+import {useGetMenuQuery} from '../../api/api/RTKApi';
+import {IMenusPages} from 'oneentry/dist/menus/menusInterfaces';
+import {LanguageContext} from '../../state/contexts/LanguageContext';
 
-type Props = {};
+type Props = object;
 
 const Drawer = createDrawerNavigator<DrawerStackNavigatorParamList>();
 
@@ -45,6 +47,10 @@ const dynamicScreens: ScreenTypes = {
   favorites: FavoritesScreen,
   cart: CartScreen,
   profile: ProfileScreen,
+  null: ContentNotVisible,
+};
+
+const staticScreens: ScreenTypes = {
   orders: UserOrdersScreen,
   contact_us: ContactUsScreen,
   place_an_order: PrepareOrderScreen,
@@ -62,13 +68,28 @@ const dynamicScreens: ScreenTypes = {
  * @param {Props} props - Component props.
  * @returns {React.ReactElement} - Rendered component.
  */
-const DrawerNavigator: React.FC<Props> = ({}) => {
-  // Fetch all pages data using the RTK query
+const DrawerNavigator: React.FC<Props> = () => {
+  const {activeLanguage} = useContext(LanguageContext);
   const {
-    data: pages,
-    isLoading: loadingPages,
-    error: errorPages,
-  } = useGetPagesQuery({});
+    data: menu,
+    error,
+    isLoading,
+    refetch: refetchMenu,
+  } = useGetMenuQuery({marker: 'bottom'});
+  const {
+    data: drawer,
+    isLoading: isLoadingDrawer,
+    isFetching,
+    error: errorDrawer,
+    refetch: refetchDrawer,
+  } = useGetMenuQuery({marker: 'main'});
+
+  const pages = menu?.pages as IMenusPages[];
+
+  useEffect(() => {
+    refetchMenu();
+    refetchDrawer();
+  }, [activeLanguage]);
 
   // Memoize the titles to display in the drawer
   const showTitle = useMemo(() => {
@@ -82,70 +103,97 @@ const DrawerNavigator: React.FC<Props> = ({}) => {
       : [];
   }, [pages]);
 
-  if (errorPages) {
-    return <ErrorBlock errorDescription={errorPages.toString()} />;
-  }
+  const renderStaticScreen = (url: string, title: string) => {
+    const RenderedScreen = url && staticScreens[url];
 
-  if (loadingPages || !pages?.length) {
-    return <Loader showBanner />;
+    if (!RenderedScreen) {
+      return null;
+    }
+
+    return (
+      <Drawer.Screen
+        name={url}
+        options={{
+          drawerLabel: title,
+          title: title,
+        }}
+        initialParams={{
+          pageUrl: url,
+          title: title,
+        }}>
+        {({route, navigation}) => (
+          <DrawerScreenWrapper>
+            <RenderedScreen navigation={navigation} route={route} />
+          </DrawerScreenWrapper>
+        )}
+      </Drawer.Screen>
+    );
+  };
+
+  if (isLoading || isLoadingDrawer || isFetching) return <Loader showBanner />;
+
+  if (error || errorDrawer) {
+    return (
+      <ErrorBlock errorTitle={error?.toString() || errorDrawer?.toString()} />
+    );
   }
 
   return (
     <>
-      <Drawer.Navigator
-        drawerContent={(props: DrawerContentComponentProps) => (
-          <CustomDrawerContent {...props} />
-        )}
-        backBehavior={'history'}
-        initialRouteName={'home'}
-        screenOptions={{
-          unmountOnBlur: true,
-          header: ({route, options}) => {
-            const title = getHeaderTitle(options, route.name);
+      {pages?.length && (
+        <Drawer.Navigator
+          drawerContent={(props: DrawerContentComponentProps) => (
+            <CustomDrawerContent menu={drawer} {...props} />
+          )}
+          backBehavior={'history'}
+          initialRouteName={'home'}
+          screenOptions={{
+            unmountOnBlur: true,
+            header: ({route, options}) => {
+              const title = getHeaderTitle(options, route.name);
 
-            return (
-              route.name !== 'Search' &&
-              route.name.toUpperCase() !== 'PRODUCTS' && (
-                <ContentTopBar
-                  isSearch={
-                    route.name.toUpperCase() !== 'HOME' &&
-                    route.name.toUpperCase() !== 'PROFILE'
-                  }
-                  cantGoBack={
-                    route.name.toUpperCase() === 'HOME' ||
-                    route.name.toUpperCase() === 'PRODUCTS'
-                  }
-                  url={route.name}
-                  hideTitle={
-                    showTitle?.findIndex(
-                      candidate =>
-                        title.toUpperCase() === candidate.toUpperCase(),
-                    ) === -1
-                  }
-                  title={title[0].toUpperCase() + title.slice(1) || undefined}
-                />
-              )
-            );
-          },
-          drawerType: 'slide',
-          overlayColor: 'rgba(255,255,255,0)',
-          drawerStyle: {
-            width: '70%',
-            height: '100%',
-          },
-          sceneContainerStyle: {
-            backgroundColor: styleColors.white,
-          },
-        }}>
-        {/* Dynamic Screens */}
-        {pages?.map(page => {
-          const RenderedScreen = page.templateIdentifier
-            ? dynamicScreens[
-                page?.templateIdentifier === 'shop' ? 'shop' : page?.pageUrl
-              ]
-            : dynamicScreens.null;
+              return (
+                route.name !== 'Search' &&
+                route.name.toUpperCase() !== 'PRODUCTS' && (
+                  <ContentTopBar
+                    isSearch={
+                      route.name.toUpperCase() !== 'HOME' &&
+                      route.name.toUpperCase() !== 'PROFILE'
+                    }
+                    cantGoBack={
+                      route.name.toUpperCase() === 'HOME' ||
+                      route.name.toUpperCase() === 'PRODUCTS'
+                    }
+                    url={route.name}
+                    hideTitle={
+                      showTitle?.findIndex(
+                        candidate =>
+                          title.toUpperCase() === candidate.toUpperCase(),
+                      ) === -1
+                    }
+                    title={title[0].toUpperCase() + title.slice(1) || undefined}
+                  />
+                )
+              );
+            },
+            drawerType: 'slide',
+            overlayColor: 'rgba(255,255,255,0)',
+            drawerStyle: {
+              width: '70%',
+              height: '100%',
+            },
+            sceneContainerStyle: {
+              backgroundColor: styleColors.white,
+            },
+          }}>
+          {/* Dynamic Screens */}
+          {pages?.map(page => {
+            const RenderedScreen = page.pageUrl
+              ? dynamicScreens[
+                  page?.pageUrl === 'shop' ? 'shop' : page?.pageUrl
+                ]
+              : dynamicScreens.null;
 
-          if (page?.isVisible) {
             return (
               <Drawer.Screen
                 name={page.pageUrl}
@@ -165,63 +213,29 @@ const DrawerNavigator: React.FC<Props> = ({}) => {
                 )}
               </Drawer.Screen>
             );
-          } else {
-            return (
-              <Drawer.Screen
-                name={page.pageUrl}
-                key={page.pageUrl}
-                options={{
-                  drawerLabel: page.localizeInfos?.menuTitle,
-                  title: page.localizeInfos?.menuTitle,
-                }}
-                initialParams={{
-                  pageUrl: page.pageUrl,
-                  title: page.localizeInfos?.menuTitle,
-                }}>
+          })}
+
+          {Object.keys(staticScreens)?.map(page => {
+            return renderStaticScreen(page, page);
+          })}
+
+          {/* Static Screens */}
+          {pages?.length && (
+            <>
+              <Drawer.Screen name={'Search'} component={SearchScreen} />
+              <Drawer.Screen name={'reviews'} component={ReviewsScreen} />
+              <Drawer.Screen name={'Products'} options={{title: 'Products'}}>
                 {() => (
                   <DrawerScreenWrapper>
-                    <ContentNotVisible />
+                    <StackNavigator />
                   </DrawerScreenWrapper>
                 )}
               </Drawer.Screen>
-            );
-          }
-        })}
-
-        {/* Static Screens */}
-        {pages && (
-          <>
-            <Drawer.Screen name={'Search'} component={SearchScreen} />
-            <Drawer.Screen name={'reviews'} component={ReviewsScreen} />
-            <Drawer.Screen name={'Products'} options={{title: 'Products'}}>
-              {() => (
-                <DrawerScreenWrapper>
-                  <StackNavigator />
-                </DrawerScreenWrapper>
-              )}
-            </Drawer.Screen>
-            <Drawer.Screen
-              name={'payment_method'}
-              options={{}}
-              initialParams={{
-                pageUrl: 'payment_method',
-                title: 'payment_method',
-              }}
-              component={dynamicScreens?.payment_method || dynamicScreens.null}
-            />
-            <Drawer.Screen
-              name={'message'}
-              options={{}}
-              initialParams={{
-                pageUrl: 'message',
-                title: 'Message',
-              }}
-              component={dynamicScreens?.message || dynamicScreens.null}
-            />
-          </>
-        )}
-      </Drawer.Navigator>
-      <BottomBar />
+            </>
+          )}
+        </Drawer.Navigator>
+      )}
+      <BottomBar menu={menu} />
     </>
   );
 };

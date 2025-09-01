@@ -7,12 +7,13 @@ import {useAppSelector} from '../../../state/hooks';
 import OrderFormInput from './OrderFormInput';
 import {KeyboardAwareScrollView} from 'react-native-keyboard-controller';
 import TimePickerModal from './TimePickerModal';
-import {useLazyGetFormByMarkerQuery} from '../../../api';
 import Toast from 'react-native-toast-message';
 import Skeleton from '../../shared/Skeleton';
 import DatePickerModal from './DatePickerModal';
+import dayjs from 'dayjs';
+import {useLazyGetFormByMarkerQuery} from '../../../api/api/RTKApi';
 
-type Props = {};
+type Props = object;
 
 /**
  * OrderForm component handles the rendering of an order form.
@@ -22,9 +23,9 @@ type Props = {};
  * @param {Props} props - Component props.
  * @returns {React.ReactElement} - Rendered component.
  */
-const OrderForm: React.FC<Props> = ({}: Props): React.ReactElement => {
+const OrderForm: React.FC<Props> = () => {
   // Select the order data from the Redux store
-  const {order} = useAppSelector(state => state.orderReducer);
+  const {order, selectedDate} = useAppSelector(state => state.orderReducer);
 
   const [requestForm, {data, isLoading, isError}] =
     useLazyGetFormByMarkerQuery();
@@ -47,14 +48,11 @@ const OrderForm: React.FC<Props> = ({}: Props): React.ReactElement => {
     const fields = order?.formData?.reduce(
       (obj: {[key: string]: any}, item) => {
         switch (item.marker) {
-          case 'time2':
-            obj.time2 = item?.value;
+          case 'shipping_interval':
+            obj.shipping_interval = item?.value[0][0] || undefined;
             break;
           case 'order_address':
             obj.order_address = item?.value;
-            break;
-          case 'date':
-            obj.date = item?.value?.formattedValue || '';
             break;
         }
         return obj;
@@ -62,11 +60,7 @@ const OrderForm: React.FC<Props> = ({}: Props): React.ReactElement => {
       {},
     );
 
-    return {
-      timeValue: fields?.time2,
-      dateValue: fields?.date,
-      addressValue: fields?.order_address,
-    };
+    return fields;
   }, [order]);
 
   if (isError) {
@@ -82,53 +76,60 @@ const OrderForm: React.FC<Props> = ({}: Props): React.ReactElement => {
       bottomOffset={10}
       contentContainerStyle={{gap: 12}}>
       {data?.attributes?.map((attribute: IAttributes) => {
-        if (attribute?.marker === 'time2') {
+        if (attribute?.marker === 'shipping_interval') {
           return (
-            <OrderFormInput
-              key={attribute?.marker}
-              Icon={Time}
-              placeholder={order_info_time_placeholder}
-              editable={Platform.OS !== 'ios'}
-              value={fieldsValues?.timeValue?.[0]?.title}
-              onPressOut={() => {
-                if (fieldsValues?.dateValue) {
-                  setVisibleTime(true);
-                  Keyboard.dismiss();
-                } else {
-                  Toast.show({
-                    type: 'info',
-                    // @ts-ignore
-                    text1: attribute?.additionalFields?.[0]?.value,
-                  });
+            <>
+              <OrderFormInput
+                key={'date' + attribute?.marker}
+                Icon={Calendar}
+                placeholder={order_info_date_placeholder}
+                editable={Platform.OS !== 'ios'}
+                value={selectedDate}
+                onPressOut={() => setVisibleDate(true)}
+                onPressIcon={() => setVisibleDate(true)}
+                field={attribute}
+              />
+              <OrderFormInput
+                key={'time' + attribute?.marker}
+                Icon={Time}
+                placeholder={order_info_time_placeholder}
+                editable={Platform.OS !== 'ios'}
+                value={
+                  fieldsValues?.shipping_interval
+                    ? dayjs(fieldsValues?.shipping_interval).format('HH:mm')
+                    : ''
                 }
-              }}
-              onPressIcon={() => setVisibleTime(true)}
-              field={attribute}
-            />
-          );
-        }
-
-        if (attribute?.marker === 'date') {
-          return (
-            <OrderFormInput
-              key={attribute?.marker}
-              Icon={Calendar}
-              placeholder={order_info_date_placeholder}
-              editable={Platform.OS !== 'ios'}
-              value={fieldsValues.dateValue?.split(' ')[0]}
-              onPressOut={() => setVisibleDate(true)}
-              onPressIcon={() => setVisibleDate(true)}
-              field={attribute}
-            />
+                onPressOut={() => {
+                  if (selectedDate) {
+                    setVisibleTime(true);
+                    Keyboard.dismiss();
+                  } else {
+                    console.log(attribute?.additionalFields);
+                    Toast.show({
+                      type: 'info',
+                      // @ts-ignore
+                      text1: attribute?.additionalFields?.[0]?.value,
+                    });
+                  }
+                }}
+                onPressIcon={() => setVisibleTime(true)}
+                field={attribute}
+              />
+            </>
           );
         }
 
         if (attribute?.marker === 'order_address') {
           return (
             <OrderFormInput
+              placeholder={
+                attribute?.additionalFields?.find(
+                  el => el.marker === 'placeholder',
+                )?.value
+              }
               key={attribute?.marker}
               field={{...attribute}}
-              value={fieldsValues?.addressValue}
+              value={fieldsValues?.order_address}
             />
           );
         }

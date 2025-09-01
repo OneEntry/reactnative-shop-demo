@@ -1,7 +1,11 @@
 import React from 'react';
 import {Counter} from './Counter';
 import {useAppDispatch} from '../../state/hooks';
-import { addToCart, decreaseQuantity, getCartItemById, removeFromCart } from "../../state/reducers/userStateSlice";
+import {
+  addToCart,
+  decreaseQuantity,
+  removeFromCart,
+} from '../../state/reducers/userStateSlice';
 
 type Props = {
   id: number;

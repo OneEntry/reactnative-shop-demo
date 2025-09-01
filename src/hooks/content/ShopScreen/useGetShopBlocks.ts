@@ -1,6 +1,5 @@
-import {useContext, useMemo} from 'react';
-import {useGetBlocksByPageUrlQuery} from '../../../api';
-import {LanguageContext} from '../../../state/contexts/LanguageContext';
+import {useMemo} from 'react';
+import {useGetBlocksByPageUrlQuery} from '../../../api/api/RTKApi';
 
 export const useGetShopBlocks = ({pageUrl}: {pageUrl?: string}) => {
   const {data, isLoading} = useGetBlocksByPageUrlQuery({

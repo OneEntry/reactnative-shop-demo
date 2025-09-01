@@ -9,6 +9,7 @@ import {AuthStackNavigatorParamList} from '../../../navigation';
 import {InputValue} from '../../ui/inputs/AppInput';
 import {useAppSelector} from '../../../state/hooks';
 import CustomInput from '../../shared/CustomInput';
+import {IError} from 'oneentry/dist/base/utils';
 
 type Props = {};
 
@@ -49,11 +50,16 @@ const ResetPasswordContent: React.FC<Props> = ({}): React.ReactElement => {
 
   const onResetPassword = async () => {
     try {
-      await defineApi.AuthProvider.generateCode(
+      const result = await defineApi.AuthProvider.generateCode(
         'email',
         value.value,
         'generate_code',
       );
+
+      if ((result as IError)?.statusCode >= 400) {
+        throw new Error((result as IError)?.message);
+      }
+
       navigateAuth('activate_user', {
         email: value,
         event: 'reset',

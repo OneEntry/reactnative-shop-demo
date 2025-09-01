@@ -23,7 +23,11 @@ export const OpenDrawerContext = createContext<OpenDrawerContextType>({
  * @param {React.ReactNode} props.children - The child components wrapped by the provider.
  * @returns {React.ReactElement} A React element wrapping the child components with the OpenDrawerContext.
  */
-export const OpenDrawerProvider = ({children}: {children: React.ReactNode}): React.ReactElement => {
+export const OpenDrawerProvider = ({
+  children,
+}: {
+  children: React.ReactNode;
+}): React.ReactElement => {
   const [open, setOpen] = useState<boolean>(false);
   const [active, setActive] = useState<string>('home');
   return (

@@ -7,8 +7,6 @@ type LogInProps = {method: string; login: string; password: string};
 
 export const logInUser = async ({method, login, password}: LogInProps) => {
   try {
-
-
     if (result?.accessToken) {
       return {data: result};
     }

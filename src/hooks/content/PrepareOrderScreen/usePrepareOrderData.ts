@@ -1,7 +1,9 @@
 import {useDispatch} from 'react-redux';
-import {createOrder} from '../../../state/reducers/OrderReducer';
+import {
+  changeProducts,
+  createOrder,
+} from '../../../state/reducers/OrderReducer';
 import {useGetProductByIdQuery} from '../../../api/api/RTKApi';
-import {SHIPPING_PRODUCT_ID} from '@env';
 import {useEffect, useMemo} from 'react';
 import {useAuth} from '../../../state/contexts/AuthContext';
 import {useAppSelector} from '../../../state/hooks';
@@ -21,9 +23,12 @@ import {addShippingPrice} from '../../../state/reducers/userStateSlice';
 export const usePrepareOrderData = () => {
   const dispatch = useDispatch();
   const items = useAppSelector(state => state.userStateReducer.cart);
+  const {shipping_product_id} = useAppSelector(
+    state => state.systemContentReducer.content,
+  );
   const {user} = useAuth();
   const {data: shippingProduct, error} = useGetProductByIdQuery({
-    id: parseInt(SHIPPING_PRODUCT_ID),
+    id: parseInt(shipping_product_id),
   });
 
   /**
@@ -32,11 +37,26 @@ export const usePrepareOrderData = () => {
    * @returns {Array<{ productId: number; quantity: number }>} An array of objects containing product IDs and quantities.
    */
   const reducedItems = useMemo(() => {
-    return items.map(item => ({
-      productId: item.id,
-      quantity: item.quantity,
-    }));
+    if (!items) return [];
+
+    return items
+      .filter(item => item.selected === true)
+      .map(item => ({
+        productId: item.id,
+        quantity: item.quantity,
+      }));
   }, [items]);
+
+  useEffect(() => {
+    if (reducedItems.length) {
+      dispatch(
+        changeProducts([
+          ...reducedItems,
+          {productId: shipping_product_id, quantity: 1},
+        ]),
+      );
+    }
+  }, [reducedItems, shipping_product_id]);
 
   /**
    * Updates the shipping price in the Redux state when the shipping product data is fetched.
@@ -51,7 +71,7 @@ export const usePrepareOrderData = () => {
    * Creates an order in Redux when the cart items are ready.
    */
   useEffect(() => {
-    if (!reducedItems) return;
+    if (!reducedItems && !shipping_product_id) return;
     const userAddress = user?.formData?.find(
       item => item.marker === 'address_reg',
     )?.value;
@@ -71,12 +91,12 @@ export const usePrepareOrderData = () => {
           : [],
         products: [
           ...reducedItems,
-          {productId: parseInt(SHIPPING_PRODUCT_ID), quantity: 1},
+          {productId: shipping_product_id, quantity: 1},
         ],
         paymentAccountIdentifier: '',
       }),
     );
-  }, [reducedItems]);
+  }, [reducedItems, shipping_product_id]);
 
   return {reducedItems, shippingProduct, error};
 };

@@ -1,9 +1,13 @@
 import React, {Dispatch, memo, useMemo, useState} from 'react';
 import dayjs from 'dayjs';
-import {useAppDispatch} from '../../../state/hooks';
+import {useAppDispatch, useAppSelector} from '../../../state/hooks';
 import {styleColors} from '../../../utils/consts';
 import {Calendar, DateData} from 'react-native-calendars';
-import { addAvailableTimeSlots, addData } from "../../../state/reducers/OrderReducer";
+import {
+  addAvailableTimeSlots,
+  addData,
+  addSelectedDate,
+} from '../../../state/reducers/OrderReducer';
 import CustomModal from '../../shared/CustomModal';
 import {View} from 'react-native';
 import useGetSchedule from '../../../hooks/content/PrepareOrderScreen/useGetSchedule';
@@ -25,8 +29,7 @@ const DatePickerModal: React.FC<Props> = ({
   /**
    * State to state the currently selected date for order in 'YYYY-MM-DD' format.
    */
-  const [selectedDate, setSelectedDate] = useState<string>('');
-
+  const selectedDate = useAppSelector(state => state.orderReducer.selectedDate);
   /**
    * State to state the current month of calendar in 'YYYY-MM' format.
    */
@@ -58,7 +61,6 @@ const DatePickerModal: React.FC<Props> = ({
 
     return disabledDates
       ? Object.assign(
-          {},
           {
             [selectedDate]: {
               selected: true,
@@ -101,19 +103,7 @@ const DatePickerModal: React.FC<Props> = ({
   const onPickDate = (day: DateData) => {
     const availability = available[day.dateString];
     if (availability) {
-      setSelectedDate(day.dateString);
-
-      dispatch(
-        addData({
-          marker: 'date',
-          type: 'date',
-          value: {
-            fullDate: day.dateString + 'T00:00:00.000Z', // ISO 8601 format
-            formattedValue: day.dateString + ' 00:00', // Custom format
-            formatString: 'YYYY-MM-DD', // Format string for reference
-          },
-        }),
-      );
+      dispatch(addSelectedDate(day.dateString));
       dispatch(addAvailableTimeSlots(availability));
 
       // Close the modal after selecting a date
@@ -134,12 +124,18 @@ const DatePickerModal: React.FC<Props> = ({
             todayTextColor: styleColors.background,
             // @ts-ignore - Override calendar header styles
             'stylesheet.calendar.header': {
+              monthTitle: {
+                marginTop: 10,
+                fontSize: 16,
+                fontFamily: 'Inter-Regular',
+                color: styleColors.background,
+              },
               dayHeader: {
                 color: styleColors.background,
               },
             },
           }}
-          minDate={new Date(Date.now()).toDateString()} // Restrict selection of previous dates
+          minDate={new Date().toDateString()} // Restrict selection of previous dates
           onDayPress={onPickDate}
           markedDates={marked} // Apply marked and disabled dates
         />

@@ -5,7 +5,9 @@ import userStateReducer from './reducers/userStateSlice';
 import orderReducer from './reducers/OrderReducer';
 import SignUpFieldsReducer from './reducers/SignUpFieldsReducer';
 import ContactUsFieldsReducer from './reducers/ContactUsFieldsReducer';
+import lastVisitedScreenReducer from './reducers/lastVisitedScreenSlice';
 import {RTKApi} from '../api';
+import {listenerMiddleware} from './listeners';
 
 const rootReducer = combineReducers({
   orderReducer,
@@ -14,6 +16,7 @@ const rootReducer = combineReducers({
   SignUpFieldsReducer,
   ContactUsFieldsReducer,
   userStateReducer,
+  lastVisitedScreenReducer,
   [RTKApi.reducerPath]: RTKApi.reducer,
 });
 
@@ -21,7 +24,9 @@ export const setupStore = () => {
   return configureStore({
     reducer: rootReducer,
     middleware: getDefaultMiddleware =>
-      getDefaultMiddleware().concat(RTKApi.middleware),
+      getDefaultMiddleware()
+        .prepend(listenerMiddleware.middleware)
+        .concat(RTKApi.middleware),
   });
 };
 

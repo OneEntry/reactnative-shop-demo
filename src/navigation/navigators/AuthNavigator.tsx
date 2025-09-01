@@ -10,11 +10,11 @@ import NewPasswordScreen from '../../pages/auth/NewPasswordScreen';
 import AuthTopBar from '../components/AuthTopBar';
 import {useAppSelector} from '../../state/hooks';
 
-type Props = {};
+type Props = object;
 
 const Stack = createNativeStackNavigator<AuthStackNavigatorParamList>();
 
-const AuthNavigator: React.FC<Props> = ({}) => {
+const AuthNavigator: React.FC<Props> = () => {
   const {
     sign_in_title,
     sign_up_title,

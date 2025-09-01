@@ -1,4 +1,7 @@
 {
-  "extends": "expo/tsconfig.base"
-  //  "include": ["src/components", "src/types/global.d.ts"]
+  "extends": "expo/tsconfig.base",
+  "compilerOptions": {
+    "typeRoots": ["./src/types", "./node_modules/@types"]
+  },
+  "include": ["**/*.ts", "**/*.tsx", "src/types/**/*.d.ts"]
 }

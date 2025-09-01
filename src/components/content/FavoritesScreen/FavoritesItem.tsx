@@ -70,9 +70,11 @@ const FavoritesItem: React.FC<Props> = ({
       <View className={'flex-row justify-between flex-1 p-2.5'}>
         <View className={'justify-between'}>
           <View style={{gap: 10}}>
-            <Paragraph size={16} color={'gray'}>
-              {product?.localizeInfos?.title}
-            </Paragraph>
+            <View className="w-[25vw]">
+              <Paragraph size={16} color={'gray'}>
+                {product?.localizeInfos?.title}
+              </Paragraph>
+            </View>
             <Rating rating={3.5} shorten />
           </View>
           <PriceString

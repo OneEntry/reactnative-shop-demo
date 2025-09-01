@@ -10,6 +10,12 @@ export const navigate = (stack: any, params?: any) => {
   }
 };
 
+export const nativeNavigate = (stack: any, params?: any) => {
+  if (navigationRef.isReady()) {
+    navigationRef.navigate(stack, params);
+  }
+};
+
 export const navigateAuth = (stack: any, params?: any) => {
   if (navigationRef.isReady()) {
     navigationRef.navigate('Auth', {screen: stack, params});

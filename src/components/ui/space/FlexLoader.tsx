@@ -1,12 +1,15 @@
 import React, {memo} from 'react';
 import {ActivityIndicator, StyleSheet, View} from 'react-native';
 
-interface Props {}
+type Props = {
+  children?: React.ReactNode;
+};
 
-const FlexLoader: React.FC<Props> = ({}) => {
+const FlexLoader: React.FC<Props> = ({children}) => {
   return (
     <View style={styles.container}>
       <ActivityIndicator size={'large'} />
+      {children}
     </View>
   );
 };

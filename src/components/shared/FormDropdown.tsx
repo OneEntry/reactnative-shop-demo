@@ -1,4 +1,4 @@
-import React, {useEffect} from 'react';
+import React from 'react';
 import {StyleSheet, Text, View} from 'react-native';
 import {Dropdown} from 'react-native-element-dropdown';
 import {styleColors} from '../../utils/consts';
@@ -10,19 +10,11 @@ import {DropdownItem} from '../../navigation/components/CustomDropdown';
 
 interface Props {
   data: any;
-  name: string;
-  label: string;
-  required: boolean;
+  marker: string;
   field?: InputValue;
 }
 
-const FormDropdown: React.FC<Props> = ({
-  data,
-  label,
-  name,
-  required,
-  field,
-}) => {
+const FormDropdown: React.FC<Props> = ({data, marker, field}) => {
   const dispatch = useAppDispatch();
   const renderItem = (item: DropdownItem) => {
     return (
@@ -32,18 +24,17 @@ const FormDropdown: React.FC<Props> = ({
     );
   };
 
-  useEffect(() => {
-    if (!field) {
-      dispatch(
-        addFieldContactUs({
-          [name]: {
-            value: '',
-            valid: !required,
-          },
-        }),
-      );
-    }
-  }, []);
+  const onChange = (item: DropdownItem) => {
+    dispatch(
+      addFieldContactUs({
+        [marker]: {
+          ...field,
+          valid: true,
+          ...item,
+        },
+      }),
+    );
+  };
 
   return (
     <View style={{gap: 5}}>
@@ -52,12 +43,11 @@ const FormDropdown: React.FC<Props> = ({
         style={[
           styles.dropdown,
           {
-            borderWidth: !field?.valid && required ? 1 : 0,
+            borderWidth: !field?.valid ? 1 : 0,
             borderColor: styleColors.red,
-            backgroundColor:
-              !field?.valid && required
-                ? styleColors.lightRed
-                : styleColors.gray_v2,
+            backgroundColor: !field?.valid
+              ? styleColors.lightRed
+              : styleColors.gray_v2,
           },
         ]}
         placeholderStyle={styles.placeholderStyle}
@@ -68,18 +58,9 @@ const FormDropdown: React.FC<Props> = ({
         maxHeight={300}
         labelField="label"
         valueField="value"
-        placeholder={label}
+        placeholder={field?.title}
         value={field?.value}
-        onChange={(item: DropdownItem) => {
-          dispatch(
-            addFieldContactUs({
-              [name]: {
-                value: item.value,
-                valid: true,
-              },
-            }),
-          );
-        }}
+        onChange={(item: DropdownItem) => onChange(item)}
         renderItem={renderItem}
       />
     </View>

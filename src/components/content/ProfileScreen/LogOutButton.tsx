@@ -2,7 +2,7 @@ import React, {memo} from 'react';
 import {styleColors} from '../../../utils/consts';
 import {Button} from '../../ui/buttons/Button';
 import {ViewStyle} from 'react-native';
-import { useAuth } from "../../../state/contexts/AuthContext";
+import {useAuth} from '../../../state/contexts/AuthContext';
 import {useAppSelector} from '../../../state/hooks';
 
 type Props = {

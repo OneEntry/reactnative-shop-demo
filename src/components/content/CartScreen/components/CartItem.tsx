@@ -45,17 +45,25 @@ const CartItem: React.FC<Props> = ({
     state => state.systemContentReducer.content.buttons,
   );
 
-  //Effect to deselect the item if it's out of stock.
+  //Effect to manage item selection based on stock status.
   useEffect(() => {
     if (productFromCart) {
+      // Снимаем выделение, если продукт стал недоступным и был выбран
       if (
         productFromCart?.statusIdentifier === 'out_of_stock' &&
         item?.selected
       ) {
         dispatch(toggleCartItemSelect(productFromCart.id));
       }
+      // Автоматическое выделение при возвращении в наличие обрабатывается в WebSocket хуке
+      // через updateCartItemAvailability action
     }
-  }, [[productFromCart]]);
+  }, [
+    productFromCart?.statusIdentifier,
+    item?.selected,
+    productFromCart?.id,
+    dispatch,
+  ]);
 
   const actions: Record<string, any> = {
     delete: async () => {

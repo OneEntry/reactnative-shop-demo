@@ -1,16 +1,15 @@
 import React, {memo} from 'react';
 import {StyleProp, TouchableOpacity, View, ViewStyle} from 'react-native';
-import {styleColors} from '../../../utils/consts';
 import {Paragraph} from '../../ui/texts/Paragraph';
 import {useAppDispatch} from '../../../state/hooks';
 import {setColorFilterActive} from '../../../state/reducers/FilterSlice';
 
-interface Props {
+type Props = {
   code: string;
   name: string;
   active?: number;
   index: number;
-}
+};
 
 const ColorPicker: React.FC<Props> = ({code, name, active, index}) => {
   const dispatch = useAppDispatch();

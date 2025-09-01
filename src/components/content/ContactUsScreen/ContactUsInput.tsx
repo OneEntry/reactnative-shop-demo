@@ -11,6 +11,7 @@ type Props = {
   validators?: Record<string, any>;
   marker: string;
   autoCapitalize?: boolean;
+  field: InputValue;
 };
 
 const ContactUsInput: React.FC<Props> = ({
@@ -19,8 +20,8 @@ const ContactUsInput: React.FC<Props> = ({
   validators,
   autoCapitalize,
   marker,
+  field,
 }) => {
-  const fields = useAppSelector(state => state.ContactUsFieldsReducer.fields);
   const {invalid_input_value} = useAppSelector(
     state => state.systemContentReducer.content,
   );
@@ -35,7 +36,7 @@ const ContactUsInput: React.FC<Props> = ({
       <CustomInput
         validators={validators}
         title={title}
-        value={fields?.[marker]}
+        value={field}
         setValue={onChange}
         multiline={multiline}
         numberOfLines={5}

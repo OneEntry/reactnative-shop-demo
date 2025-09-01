@@ -5,9 +5,9 @@ import {
   ResetPasswordHeader,
 } from '../../components/auth/ResetPasswordScreen';
 
-type Props = {};
+type Props = object;
 
-const ResetPasswordScreen: React.FC<Props> = ({}) => {
+const ResetPasswordScreen: React.FC<Props> = () => {
   return (
     <Screen isFull white edges={['top', 'horizontal', 'bottom']}>
       <ResetPasswordHeader />

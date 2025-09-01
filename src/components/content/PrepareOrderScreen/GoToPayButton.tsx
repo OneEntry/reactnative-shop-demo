@@ -59,6 +59,6 @@ const GoToPayButton: React.FC<Props> = (): React.ReactElement => {
   );
 };
 
-type Props = {};
+type Props = object;
 
 export default GoToPayButton;

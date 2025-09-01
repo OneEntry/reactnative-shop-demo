@@ -17,7 +17,6 @@ type Props = {
   setEditing: Dispatch<boolean>;
 };
 
-
 /**
  * UpdateUserForm component allows users to edit their profile information.
  * It supports updating name, phone, and address fields.

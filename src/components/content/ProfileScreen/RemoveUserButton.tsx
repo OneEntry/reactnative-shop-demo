@@ -1,23 +1,27 @@
-import React, { useState} from 'react';
+import React, {useState} from 'react';
 import {defineApi} from '../../../api';
-import {useAuth } from "../../../state/contexts/AuthContext";
+import {useAuth} from '../../../state/contexts/AuthContext';
 import {ActivityIndicator, TouchableOpacity, View} from 'react-native';
 import {Paragraph} from '../../ui/texts/Paragraph';
+import {useAppSelector} from '../../../state/hooks';
 
-type Props = {};
+type Props = object;
 
-const RemoveUserButton: React.FC<Props> = ({}) => {
-  const {authenticate, user, logOutUser} = useAuth();
+const RemoveUserButton: React.FC<Props> = () => {
+  const {authenticate, logOutUser} = useAuth();
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const {remove_user_text} = useAppSelector(
+    state => state.systemContentReducer.content,
+  );
 
   const removeUser = async () => {
     try {
       setIsLoading(true);
-      const form = await defineApi.Users.deleteUser();
-      const res = logOutUser();
-      if (!res.error) {
-        authenticate();
-      }
+      const deleteUser = await defineApi.Users.deleteUser();
+      console.log('=>(RemoveUserButton.tsx:21) deleteUser', deleteUser);
+
+      await logOutUser();
+      authenticate();
       setIsLoading(false);
     } catch (e) {
       console.log(e);
@@ -38,7 +42,7 @@ const RemoveUserButton: React.FC<Props> = ({}) => {
       onPress={removeUser}
       className={'w-full items-center mb-4 justify-start'}>
       <Paragraph size={20} color={'red'}>
-        Remove user
+        {remove_user_text}
       </Paragraph>
     </TouchableOpacity>
   );

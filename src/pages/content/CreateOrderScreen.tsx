@@ -6,9 +6,9 @@ import {
   PaymentMethodsList,
 } from '../../components/content/CreateOrderScreen';
 
-type Props = {};
+type Props = object;
 
-const CreateOrderScreen: React.FC<Props> = ({}) => {
+const CreateOrderScreen: React.FC<Props> = () => {
   return (
     <Screen isFull white edges={['horizontal', 'bottom']}>
       <TopSpacerV2 height={50} />

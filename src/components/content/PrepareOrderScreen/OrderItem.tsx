@@ -27,11 +27,12 @@ const OrderItem: React.FC<Props> = ({
   }
 
   return (
-    <Card>
+    <Card style={{borderBottomWidth: 0}}>
       <View className={'rounded-xs bg-lightGray'}>
         <CustomImage
-          width={70}
+          width={72}
           height={60}
+          style={{borderRadius: 10}}
           uri={
             product?.attributeValues?.pic?.value[0]?.downloadLink ||
             product?.attributeValues?.pic?.value?.downloadLink
@@ -40,7 +41,7 @@ const OrderItem: React.FC<Props> = ({
       </View>
       <View className={'flex-row justify-between flex-1 mb-2.5'}>
         <View className={'justify-between'}>
-          <Paragraph className={'w-28'} color={'gray'} size={16}>
+          <Paragraph className={''} color={'gray'} size={16}>
             {product?.localizeInfos?.title as any}
           </Paragraph>
           <PriceString
@@ -51,7 +52,10 @@ const OrderItem: React.FC<Props> = ({
           />
         </View>
         {isActions && (
-          <View className={'self-end items-center justify-end flex-row'}>
+          <View
+            className={
+              'absolute bottom-0 right-0 self-end items-center justify-end flex-row'
+            }>
             <AddToCartCounter id={product.id} quantity={initialCount} />
             <View className={'w-5'} />
             <TrashCartButton id={product.id} />

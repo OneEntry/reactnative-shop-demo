@@ -6,8 +6,8 @@ import {
   ProductGoBack,
 } from '../../components/content/ProductScreen';
 
-type Props = {};
-export const Product: React.FC<Props> = ({}) => {
+type Props = object;
+export const Product: React.FC<Props> = () => {
   const [refreshing, setRefreshing] = React.useState(false);
 
   return (

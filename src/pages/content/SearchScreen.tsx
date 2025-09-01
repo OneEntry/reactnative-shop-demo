@@ -6,9 +6,9 @@ import {
   SearchHistory,
 } from '../../components/content/SearchScreen';
 
-interface Props {}
+type Props = object;
 
-const SearchScreen: React.FC<Props> = ({}) => {
+const SearchScreen: React.FC<Props> = () => {
   const [query, setQuery] = useState<string>('');
 
   //Fetch stored search history from AsyncStorage

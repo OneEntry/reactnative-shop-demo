@@ -37,7 +37,6 @@ const styles = StyleSheet.create({
     height: '100%',
     width: layoutWidth,
     marginTop: 30,
-    paddingVertical: 20,
     gap: 10,
   },
 });

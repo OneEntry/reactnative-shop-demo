@@ -33,6 +33,8 @@ const CreateOrderButton: React.FC<Props> = ({
   const [isLoading, setIsLoading] = useState(false);
   const dispatch = useAppDispatch();
 
+  console.log(order.products);
+
   /**
    * Creates a payment session for Stripe payments and navigates to the payment page.
    *
@@ -77,7 +79,7 @@ const CreateOrderButton: React.FC<Props> = ({
           paymentAccountIdentifier: order.paymentAccountIdentifier,
         });
 
-        if ((result as IError).statusCode > 400) {
+        if ((result as IError).statusCode >= 400) {
           throw new Error((result as IError).message);
         }
 

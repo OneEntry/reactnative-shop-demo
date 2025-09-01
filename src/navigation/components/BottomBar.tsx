@@ -7,20 +7,46 @@ import {useAppSelector} from '../../state/hooks';
 import {Paragraph} from '../../components/ui/texts/Paragraph';
 import {OpenDrawerContext} from '../../state/contexts/OpenDrawerContext';
 import hairlineWidth = StyleSheet.hairlineWidth;
-import ErrorBlock from '../../components/shared/ErrorBlock';
-import {IMenusPages} from 'oneentry/dist/menus/menusInterfaces';
+import {IMenusEntity, IMenusPages} from 'oneentry/dist/menus/menusInterfaces';
 import CustomImage from '../../components/ui/templates/CustomImage';
-import {useGetMenuQuery} from '../../api/api/RTKApi';
 import {getCartLength} from '../../state/reducers/userStateSlice';
+import Animated, {
+  useAnimatedStyle,
+  useSharedValue,
+  withSpring,
+} from 'react-native-reanimated';
 
-interface Props {}
+interface Props {
+  menu: IMenusEntity;
+}
 
-const BottomBar: React.FC<Props> = ({}) => {
-  const {data: menu, error} = useGetMenuQuery({marker: 'bottom'});
+const BottomBar: React.FC<Props> = ({menu}) => {
   const {active} = useContext(OpenDrawerContext);
   const insets = useSafeAreaInsets();
   const cartCount = useAppSelector(getCartLength);
   const [isKeyboardVisible, setKeyboardVisible] = useState(false);
+
+  const scale = useSharedValue(1);
+
+  useEffect(() => {
+    if (cartCount > 0) {
+      // Trigger pop animation
+      scale.value = withSpring(1.4, {damping: 5});
+      setTimeout(() => {
+        scale.value = withSpring(1);
+      }, 150);
+    }
+  }, [cartCount]);
+
+  const animatedStyle = useAnimatedStyle(() => ({
+    transform: [{scale: scale.value}],
+  }));
+
+  useEffect(() => {
+    if (menu?.pages) {
+      // dispatch(addMenu(menu.pages as IMenusPages[]));
+    }
+  }, [menu]);
 
   useEffect(() => {
     const keyboardDidShowListener = Keyboard.addListener(
@@ -43,10 +69,6 @@ const BottomBar: React.FC<Props> = ({}) => {
       keyboardDidShowListener.remove();
     };
   }, []);
-
-  if (error) {
-    return <ErrorBlock errorTitle={'error menu'} />;
-  }
 
   return (
     <View
@@ -73,14 +95,15 @@ const BottomBar: React.FC<Props> = ({}) => {
               }}
               key={i}>
               {item?.pageUrl === 'cart' && cartCount > 0 && (
-                <View
+                <Animated.View
+                  style={animatedStyle}
                   className={
                     'absolute w-4 h-4 bg-accent -right-2.5 rounded-full z-50 items-center justify-center'
                   }>
                   <Paragraph size={9} color={'white'} weight={'700'}>
                     {cartCount}
                   </Paragraph>
-                </View>
+                </Animated.View>
               )}
               <CustomImage
                 width={24}

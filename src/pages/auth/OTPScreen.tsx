@@ -3,9 +3,9 @@ import {Screen} from '../../components/ui/templates/Screen';
 import OTPButton from '../../components/auth/OTPScreen/OTPButton';
 import OTPInput from '../../components/auth/OTPScreen/OTPInput';
 
-type Props = {};
+type Props = object;
 
-const OTPScreen: React.FC<Props> = ({}) => {
+const OTPScreen: React.FC<Props> = () => {
   const [value, setValue] = React.useState('');
 
   return (

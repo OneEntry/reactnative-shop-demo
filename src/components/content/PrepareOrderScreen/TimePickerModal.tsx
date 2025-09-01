@@ -1,38 +1,52 @@
-import React, {Dispatch, useState} from 'react';
+import React, {Dispatch} from 'react';
 import {View} from 'react-native';
 import CustomModal from '../../shared/CustomModal';
 import TimePicker from './TimePicker';
-import {useAppDispatch} from '../../../state/hooks';
-import {addData} from '../../../state/reducers/OrderReducer';
+import {useAppDispatch, useAppSelector} from '../../../state/hooks';
+import {addData, addOrderTime} from '../../../state/reducers/OrderReducer';
+import dayjs from 'dayjs';
 
-interface Props {
+type Props = {
   visible: boolean;
   setVisible: Dispatch<boolean>;
   // intervals: any;
-}
+};
 
 const TimePickerModal: React.FC<Props> = ({visible, setVisible}) => {
   const dispatch = useAppDispatch();
-  const [selectedTime, setSelectedTime] = useState<number | null>(null);
+  const {selectedDate, availableTimes} = useAppSelector(
+    state => state.orderReducer,
+  );
+  const {orderTime} = useAppSelector(state => state.orderReducer);
 
   const onPickTime = (time: number) => {
+    const selectedInterval = availableTimes[0][time];
+
+    if (!selectedInterval || selectedInterval?.length < 2) return;
+
     dispatch(
       addData({
-        marker: 'time2',
-        type: 'list',
+        marker: 'shipping_interval',
+        type: 'timeInterval',
         value: [
-          {
-            title: time + ':00',
-            value: time.toString(),
-            extended: {
-              value: 'Available',
-              type: 'string',
-            },
-          },
+          [
+            dayjs(selectedDate)
+              .set('hour', selectedInterval[0]?.hours)
+              .set('minute', selectedInterval[0]?.minutes)
+              .toISOString(),
+            dayjs(selectedDate)
+              .set('hour', selectedInterval[1]?.hours)
+              .set('minute', selectedInterval[1]?.minutes)
+              .toISOString(),
+          ],
         ],
       }),
     );
     setVisible(false);
+  };
+
+  const setSelectedTime = (time: number) => {
+    dispatch(addOrderTime(time));
   };
 
   return (
@@ -40,7 +54,7 @@ const TimePickerModal: React.FC<Props> = ({visible, setVisible}) => {
       <View className={'bg-white flex-1 justify-center items-center'}>
         <TimePicker
           setActive={setSelectedTime}
-          active={selectedTime}
+          active={orderTime}
           action={onPickTime}
         />
       </View>

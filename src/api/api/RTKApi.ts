@@ -23,13 +23,20 @@ import {
   IProductBlock,
   IProductEntity,
   IProductsEntity,
-  IProductsQuery,
   IProductsResponse,
 } from 'oneentry/dist/products/productsInterfaces';
 import {IMenusEntity} from 'oneentry/dist/menus/menusInterfaces';
 import {ILocalEntity} from 'oneentry/dist/locales/localesInterfaces';
-import {logJSON} from '../../utils/logJSON';
 import getSearchParams from '../utils/getSearchParams';
+import {ISubscriptions} from 'oneentry/dist/events/eventsInterfaces';
+
+export function isError<T extends object>(data: T | IError): data is IError {
+  if ('statusCode' in data && data.statusCode >= 400 && 'message' in data) {
+    return true;
+  }
+
+  return false;
+}
 
 export const RTKApi = createApi({
   reducerPath: 'api',
@@ -38,11 +45,13 @@ export const RTKApi = createApi({
     getAuthProviders: build.query<IAuthProvidersEntity[], string | undefined>({
       queryFn: async activeLang => {
         try {
-          const result = await defineApi.AuthProvider.getAuthProviders(activeLang);
-          if ((result as IError)?.statusCode >= 400) {
-            throw new Error((result as IError)?.message);
+          const result =
+            await defineApi.AuthProvider.getAuthProviders(activeLang);
+
+          if (isError(result)) {
+            throw new Error(result?.message);
           }
-          return {data: (result as IAuthProvidersEntity[]) || []};
+          return {data: result || []};
         } catch (e: any) {
           return {error: e.message};
         }
@@ -53,8 +62,8 @@ export const RTKApi = createApi({
         try {
           const result = await defineApi.Forms.getFormByMarker(marker);
 
-          if ((result as IError)?.statusCode >= 400) {
-            throw new Error((result as IError)?.message);
+          if (isError(result)) {
+            throw new Error(result?.message);
           }
 
           result.attributes.sort(
@@ -66,7 +75,7 @@ export const RTKApi = createApi({
         }
       },
     }),
-    getMe: build.query<IUserEntity, {}>({
+    getMe: build.query<IUserEntity, void>({
       queryFn: async () => {
         try {
           const result = await defineApi.Users.getUser();
@@ -81,16 +90,16 @@ export const RTKApi = createApi({
         }
       },
     }),
-    getAccounts: build.query<IAccountsEntity[], {}>({
+    getAccounts: build.query<IAccountsEntity[], void>({
       queryFn: async () => {
         try {
           const result = await defineApi.Payments.getAccounts();
 
-          if ((result as IError)?.statusCode >= 400) {
-            throw new Error((result as IError)?.message);
+          if (isError(result)) {
+            throw new Error(result?.message);
           }
 
-          return {data: result as IAccountsEntity[]};
+          return {data: result};
         } catch (e: any) {
           return {error: e.message};
         }
@@ -101,8 +110,8 @@ export const RTKApi = createApi({
         try {
           const result = await defineApi.Orders.getOrderByMarker(marker);
 
-          if ((result as IError)?.statusCode >= 400) {
-            throw new Error((result as IError)?.message);
+          if (isError(result)) {
+            throw new Error(result?.message);
           }
 
           return {data: result as IOrdersEntity};
@@ -111,15 +120,14 @@ export const RTKApi = createApi({
         }
       },
     }),
-    getPaymentSessionById: build.query<ISessionEntity, {id?: number | string}>({
+    getPaymentSessionById: build.query<ISessionEntity, {id: number}>({
       queryFn: async ({id}) => {
         try {
-          // @ts-ignore
           const result = await defineApi.Payments.getSessionById(id);
-          if ((result as IError)?.statusCode >= 400) {
-            throw new Error((result as IError)?.message);
+          if (isError(result)) {
+            throw new Error(result?.message);
           }
-          return {data: (result as ISessionEntity) || {}};
+          return {data: result};
         } catch (e: any) {
           return {error: e.message};
         }
@@ -130,8 +138,8 @@ export const RTKApi = createApi({
         try {
           const result = await defineApi.Orders.getAllOrdersByMarker(marker);
 
-          if ((result as IError)?.statusCode >= 400) {
-            throw new Error((result as IError)?.message);
+          if (isError(result)) {
+            throw new Error(result?.message);
           }
 
           return {data: result as IOrdersByMarkerEntity};
@@ -142,17 +150,17 @@ export const RTKApi = createApi({
     }),
     getAttributesByMarker: build.query<
       IAttributesSetsEntity[],
-      {setMarker: string}
+      {setMarker: string; langCode?: string}
     >({
       queryFn: async ({setMarker}) => {
         try {
           const result =
             await defineApi.AttributesSets.getAttributesByMarker(setMarker);
 
-          if ((result as IError)?.statusCode >= 400) {
-            throw new Error((result as IError)?.message);
+          if (isError(result)) {
+            throw new Error(result?.message);
           }
-          return {data: (result as IAttributesSetsEntity[]) || {}};
+          return {data: result};
         } catch (e: any) {
           return {error: e.message};
         }
@@ -164,18 +172,45 @@ export const RTKApi = createApi({
     >({
       queryFn: async ({setMarker, attributeMarker}) => {
         try {
-          const result = await defineApi.AttributesSets.getSingleAttributeByMarkerSet(
-            setMarker,
-            attributeMarker,
-          );
+          const result =
+            await defineApi.AttributesSets.getSingleAttributeByMarkerSet(
+              setMarker,
+              attributeMarker,
+            );
 
-          if ((result as IError)?.statusCode >= 400) {
-            throw new Error((result as IError)?.message);
+          if (isError(result)) {
+            throw new Error(result?.message);
           }
 
           return {data: result as IAttributesSetsEntity};
         } catch (e: any) {
           return {error: e.message};
+        }
+      },
+    }),
+    //get User subscriptions
+    getUserSubscriptions: build.query<ISubscriptions, void>({
+      queryFn: async () => {
+        try {
+          const result = await defineApi.Events.getAllSubscriptions();
+
+          if (isError(result)) {
+            throw new Error(result?.message);
+          }
+
+          return {data: result as ISubscriptions};
+        } catch (e: any) {
+          return {error: e.message};
+        }
+      },
+      async onQueryStarted(_, {dispatch, queryFulfilled}) {
+        try {
+          const {data} = await queryFulfilled;
+          // Dispatch your slice's action with the fetched data
+          if (data) {
+          }
+        } catch (err) {
+          console.error('Failed to fetch masters:', err);
         }
       },
     }),
@@ -193,8 +228,8 @@ export const RTKApi = createApi({
             limit,
           );
 
-          if ((result as IError)?.statusCode >= 400) {
-            throw new Error((result as IError)?.message);
+          if (isError(result)) {
+            throw new Error(result?.message);
           }
 
           return {data: result as IBlockEntity};
@@ -211,10 +246,11 @@ export const RTKApi = createApi({
             return {data: []};
           }
 
-          const result = await defineApi.Products.getProductBlockById(productId);
+          const result =
+            await defineApi.Products.getProductBlockById(productId);
 
-          if ((result as IError)?.statusCode >= 400) {
-            throw new Error((result as IError)?.message);
+          if (isError(result)) {
+            throw new Error(result?.message);
           }
           return {data: result as IProductBlock[]};
         } catch (e: any) {
@@ -232,8 +268,8 @@ export const RTKApi = createApi({
 
           const result = await defineApi.Pages.getBlocksByPageUrl(pageUrl);
 
-          if ((result as IError)?.statusCode >= 400) {
-            throw new Error((result as IError)?.message);
+          if (isError(result)) {
+            throw new Error(result?.message);
           }
 
           return {data: result as IPositionBlock[]};
@@ -252,8 +288,8 @@ export const RTKApi = createApi({
 
           const result = await defineApi.Products.getRelatedProductsById(id);
 
-          if ((result as IError)?.statusCode >= 400) {
-            throw new Error((result as IError)?.message);
+          if (isError(result)) {
+            throw new Error(result?.message);
           }
           return {data: result as IProductsResponse};
         } catch (e: any) {
@@ -274,8 +310,8 @@ export const RTKApi = createApi({
 
           const result = await defineApi.Pages.getConfigPageByUrl(pageUrl);
 
-          if ((result as IError)?.statusCode >= 400) {
-            throw new Error((result as IError)?.message);
+          if (isError(result)) {
+            throw new Error(result?.message);
           }
 
           return {
@@ -300,8 +336,8 @@ export const RTKApi = createApi({
           }
           const result = await defineApi.Pages.getPageByUrl(pageUrl);
 
-          if ((result as IError)?.statusCode >= 400) {
-            throw new Error((result as IError)?.message);
+          if (isError(result)) {
+            throw new Error(result?.message);
           }
 
           return {data: result as IPagesEntity};
@@ -313,10 +349,13 @@ export const RTKApi = createApi({
     getProductById: build.query<IProductsEntity, {id: number}>({
       queryFn: async ({id}) => {
         try {
+          if (!id) {
+            throw new Error('No id');
+          }
           const result = await defineApi.Products.getProductById(id);
 
-          if ((result as IError)?.statusCode >= 400) {
-            throw new Error((result as IError)?.message);
+          if (isError(result)) {
+            throw new Error(result?.message);
           }
 
           return {data: result as IProductsEntity};
@@ -363,7 +402,7 @@ export const RTKApi = createApi({
           if (!limit) {
             return {data: []};
           }
-          const body = getSearchParams({search, filters});
+          const body = getSearchParams({search, filters, available});
 
           let result: IError | IProductsResponse;
 
@@ -390,8 +429,8 @@ export const RTKApi = createApi({
             });
           }
 
-          if ((result as IError)?.statusCode >= 400) {
-            throw new Error((result as IError)?.message);
+          if (isError(result)) {
+            throw new Error(result?.message);
           }
 
           const products = (result as IProductsResponse)?.items?.filter(res => {
@@ -410,8 +449,8 @@ export const RTKApi = createApi({
         try {
           const result = await defineApi.Menus.getMenusByMarker(marker);
 
-          if ((result as IError)?.statusCode >= 400) {
-            throw new Error((result as IError)?.message);
+          if (isError(result)) {
+            throw new Error(result?.message);
           }
 
           return {data: result as IMenusEntity};
@@ -425,8 +464,8 @@ export const RTKApi = createApi({
         try {
           const result = await defineApi.Locales.getLocales();
 
-          if ((result as IError)?.statusCode >= 400) {
-            throw new Error((result as IError)?.message);
+          if (isError(result)) {
+            throw new Error(result?.message);
           }
 
           return {data: result as ILocalEntity[]};
@@ -440,8 +479,8 @@ export const RTKApi = createApi({
         try {
           const result = await defineApi.Pages.getPages();
 
-          if ((result as IError)?.statusCode >= 400) {
-            throw new Error((result as IError)?.message);
+          if (isError(result)) {
+            throw new Error(result?.message);
           }
 
           return {data: result as IPagesEntity[]};
@@ -477,4 +516,6 @@ export const {
   useGetLocalesQuery,
   useGetPagesQuery,
   useGetProductsQuery,
+  useLazyGetUserSubscriptionsQuery,
+  useGetUserSubscriptionsQuery,
 } = RTKApi;

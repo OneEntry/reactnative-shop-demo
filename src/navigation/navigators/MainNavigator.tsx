@@ -7,11 +7,11 @@ import ErrorScreen from '../../pages/ErrorScreen';
 import {navigationRef} from '../utils/NavigatonRef';
 import {NavigationContainer} from '@react-navigation/native';
 
-type Props = {};
+type Props = object;
 
 const Stack = createNativeStackNavigator<UserStackParamList>();
 
-const MainNavigator: React.FC<Props> = ({}) => {
+const MainNavigator: React.FC<Props> = () => {
   return (
     <NavigationContainer ref={navigationRef}>
       <Stack.Navigator

@@ -10,9 +10,9 @@ import {
 import {Paragraph} from '../../ui/texts/Paragraph';
 import {styleColors} from '../../../utils/consts';
 
-interface Props {}
+type Props = object;
 
-const PriceFromInput: React.FC<Props> = ({}) => {
+const PriceFromInput: React.FC<Props> = () => {
   const {priceFromSelected} = useAppSelector(state => state.filterReducer);
   const priceFrom = useAppSelector(
     state => state.systemContentReducer.content.price_from,

@@ -2,7 +2,7 @@ import React, {memo} from 'react';
 import {FlatList} from 'react-native';
 import UserReview from './UserReview';
 
-type Props = {};
+type Props = object;
 
 const reviews = [
   {
@@ -13,7 +13,7 @@ const reviews = [
   },
 ];
 
-const ReviewsList: React.FC<Props> = ({}) => {
+const ReviewsList: React.FC<Props> = () => {
   return (
     <FlatList
       data={reviews}

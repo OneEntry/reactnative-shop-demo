@@ -1,63 +1,46 @@
+/* eslint-disable prettier/prettier */
 import {
   FormDataType,
   IFormsPost,
 } from 'oneentry/dist/formsData/formsDataInterfaces';
 import {defineApi} from '../../../api';
 import {IError} from 'oneentry/dist/base/utils';
+import {InputValue} from '../../ui/inputs/AppInput';
 
-export const submitContactUsForm = async (fields, onSuccess, onError) => {
+export const submitContactUsForm = async (
+  fields: {[p: string]: InputValue},
+  onSuccess,
+  onError,
+) => {
   const emptyFormData: {marker?: string; value?: string}[] = [];
   if (fields) {
-    let propertiesArray = Object.keys(fields);
+    let propertiesArray = Object.entries(fields);
 
     const transformedFormData = propertiesArray?.reduce(
-      (formData, currentValue) => {
-        if (!fields[currentValue].value) {
+      (formData, [key, value]) => {
+        if (!value.value) {
           return formData;
         }
         let newData: FormDataType = {
-          marker: currentValue,
+          marker: key,
           type: 'string',
-          value: fields[currentValue].value,
+          value: value.value,
         };
-        if (currentValue === 'topic') {
+        if (key === 'topic') {
           newData = {
-            marker: currentValue,
+            marker: key,
             type: 'list',
-            value: [
-              {
-                title: fields[currentValue].value,
-                value: fields[currentValue].value,
-              },
-            ],
+            value: [value.value],
           };
         }
 
-        if (currentValue === 'time2') {
+        if (key === 'text') {
           newData = {
-            marker: currentValue,
-            type: 'list',
-            value: [
-              {
-                title: fields[currentValue].value,
-                value: fields[currentValue].value,
-              },
-            ],
-          };
-        }
-
-        if (currentValue === 'text') {
-          newData = {
-            marker: currentValue,
+            marker: key,
             type: 'text',
             value: [
               {
-                htmlValue: `<p>${fields[currentValue].value}</p>`,
-                plainValue: fields[currentValue].value,
-                params: {
-                  isEditorDisabled: false,
-                  isImageCompressed: true,
-                },
+                markdownValue: "<p>value.value</p>",
               },
             ],
           };

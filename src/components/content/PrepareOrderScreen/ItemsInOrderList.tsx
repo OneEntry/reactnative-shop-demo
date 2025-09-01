@@ -1,12 +1,11 @@
 import {useAppSelector} from '../../../state/hooks';
 import {usePrepareOrderData} from '../../../hooks/content/PrepareOrderScreen/usePrepareOrderData';
-import React, { Dispatch, memo, useCallback, useEffect, useMemo } from "react";
+import React, {Dispatch, memo, useEffect, useMemo} from 'react';
 import {navigate} from '../../../navigation/utils/NavigatonRef';
-import ErrorBlock from '../../shared/ErrorBlock';
 import {ScrollView, View} from 'react-native';
 import OrderItem from './OrderItem';
 import Footer from '../../ui/space/Footer';
-import useGetProductsByIds from "../../../hooks/shared/useGetProductsByIds";
+import useGetProductsByIds from '../../../hooks/shared/useGetProductsByIds';
 
 /**
  * A component that displays the list of items in the cart, including the shipping product.
@@ -32,13 +31,16 @@ const ItemsInOrderList: React.FC<Props> = ({
   /**
    * Retrieves fresh list of products data.
    */
-  const ids = useMemo(() => items.map(item => item.id) || [], []);
+  const ids = useMemo(
+    () => items.filter(item => item.selected).map(item => item.id) || [],
+    [],
+  );
   const {products} = useGetProductsByIds({ids});
 
   /**
    * Prepares the order data using the `usePrepareOrderData` hook.
    */
-  const {shippingProduct, error} = usePrepareOrderData();
+  const {shippingProduct} = usePrepareOrderData();
 
   /**
    * Redirects to the cart screen if the cart is empty.
@@ -50,46 +52,42 @@ const ItemsInOrderList: React.FC<Props> = ({
   }, [items]);
 
   /**
-   * Updates the total price of the order.
+   * Updates the total price of the order. If the cart is empty, it navigates to the cart screen.
    */
   useEffect(() => {
-    if (products || shippingProduct) {
-      setTotal(
-        products.reduce(
-          (acc, product, currentIndex) =>
-            acc + product.price * items[currentIndex].quantity,
-          0,
-        ) + (shippingProduct?.price || 0),
-      );
+    if (items.length) {
+      if (products || shippingProduct) {
+        setTotal(
+          products.reduce(
+            (acc, product, currentIndex) =>
+              acc + product.price * items[currentIndex]?.quantity,
+            0,
+          ) + (shippingProduct?.price || 0),
+        );
+      }
+    } else {
+      navigate('cart');
     }
-  }, [products, shippingProduct]);
-
-  // Render an error block if there is an error fetching the shipping product
-  if (error) {
-    return (
-      <ErrorBlock
-        errorTitle="Error"
-        errorDescription="An error occurred while loading the shipping product."
-      />
-    );
-  }
+  }, [products, shippingProduct, items]);
 
   return (
-    <View className="h-64">
+    <View className="flex-1">
       <ScrollView
         nestedScrollEnabled
         showsVerticalScrollIndicator={false}
-        className="flex-1"
         contentContainerStyle={{gap: 10}}>
         {/* Render cart items */}
-        {items.map((item, i) => (
-          <OrderItem
-            key={'order' + i}
-            currency={currency}
-            product={products[i]}
-            initialCount={item.quantity}
-          />
-        ))}
+        {items.map(
+          (item, i) =>
+            item.selected && (
+              <OrderItem
+                key={'order' + i}
+                currency={currency}
+                product={products[i]}
+                initialCount={item.quantity}
+              />
+            ),
+        )}
 
         {/* Render shipping product */}
         {shippingProduct && (
@@ -102,7 +100,7 @@ const ItemsInOrderList: React.FC<Props> = ({
         )}
 
         {/* Footer component */}
-        <Footer />
+        <Footer style={{height: 50}} />
       </ScrollView>
     </View>
   );

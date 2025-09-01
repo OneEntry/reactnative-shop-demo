@@ -3,10 +3,7 @@ import {useAppDispatch, useAppSelector} from '../../../state/hooks';
 import {navigate, navigateAuth} from '../../../navigation/utils/NavigatonRef';
 import {Alert, View} from 'react-native';
 import {ISignUpData} from 'oneentry/dist/auth-provider/authProvidersInterfaces';
-import {
-  signUpUser,
-  useAuth,
-} from '../../../state/contexts/AuthContext';
+import {signUpUser, useAuth} from '../../../state/contexts/AuthContext';
 import {clearAllFieldsSignUp} from '../../../state/reducers/SignUpFieldsReducer';
 import BigButton from '../../shared/BigButton';
 import Toast from 'react-native-toast-message';

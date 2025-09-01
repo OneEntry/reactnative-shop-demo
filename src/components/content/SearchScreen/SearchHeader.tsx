@@ -41,8 +41,10 @@ const SearchHeader: React.FC<Props> = ({query}) => {
   }, [value]);
 
   return (
-    <Screen edges={['top', 'horizontal']} className={'bg-lightGray pb-8'}>
-      <View className={'flex-row w-full justify-between items-center'}>
+    <Screen
+      edges={['top', 'horizontal']}
+      style={{backgroundColor: styleColors.gray_v2, paddingBottom: 36}}>
+      <View className={'flex-row w-full justify-between items-center '}>
         <GoBackButton />
         <AppInput
           className={

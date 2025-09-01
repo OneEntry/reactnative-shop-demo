@@ -1,6 +1,5 @@
 import React, {memo} from 'react';
 import {
-  StyleProp,
   StyleSheet,
   TouchableOpacity,
   TouchableOpacityProps,
@@ -8,9 +7,9 @@ import {
 } from 'react-native';
 import X from '../../../assets/icons/x.svg';
 
-interface Props {
+type Props = {
   action: () => void;
-}
+} & TouchableOpacityProps;
 
 const XButton: React.FC<Props & TouchableOpacityProps> = props => {
   const {action, style, ...rest} = props;

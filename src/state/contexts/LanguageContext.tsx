@@ -8,6 +8,7 @@ import React, {
 import {LanguageEnum} from '../../types/enum';
 import {ILocalEntity} from 'oneentry/dist/locales/localesInterfaces';
 import {
+  useGetAttributesByMarkerQuery,
   useGetLocalesQuery,
   useGetSingleAttributeInSetByMarkerQuery,
   useLazyGetBlockByMarkerQuery,
@@ -15,7 +16,11 @@ import {
 import ErrorBlock from '../../components/shared/ErrorBlock';
 import {DropdownItem} from '../../navigation/components/CustomDropdown';
 import {useAppDispatch} from '../hooks';
-import {addCartOptions, addContent} from '../reducers/SystemContentSlice';
+import {
+  addCartOptions,
+  addContent,
+  addStaticContent,
+} from '../reducers/SystemContentSlice';
 
 type ContextProps = {
   activeLanguage: LanguageEnum;
@@ -51,17 +56,27 @@ export const LanguageProvider = ({
   const {data: locales, error} = useGetLocalesQuery({});
   const [getSystemContent, {data: block, isLoading}] =
     useLazyGetBlockByMarkerQuery();
-  const {data: attributes} = useGetSingleAttributeInSetByMarkerQuery({
-    setMarker: 'system_content',
-    attributeMarker: 'cart_item_options',
-  });
+  const {data: attributes, refetch: refetchCartItems} =
+    useGetSingleAttributeInSetByMarkerQuery({
+      setMarker: 'system_content',
+      attributeMarker: 'cart_item_options',
+    });
+  const {data: staticData, refetch: refetchStaticContent} =
+    useGetAttributesByMarkerQuery({
+      setMarker: 'static_content',
+      langCode: activeLanguage,
+    });
+
   const dispatch = useAppDispatch();
 
   useEffect(() => {
     if (block) {
       dispatch(addContent(block)); // Adds fetched system content to the Content Redux store.
+      if (staticData?.length) {
+        dispatch(addStaticContent(staticData)); // fetch system attributes
+      }
     }
-  }, [block]);
+  }, [block, staticData]);
 
   useEffect(() => {
     if (attributes) {
@@ -75,6 +90,8 @@ export const LanguageProvider = ({
         marker: 'system_content',
         langCode: activeLanguage,
       }); // Fetches system content for the active language.
+      refetchCartItems();
+      refetchStaticContent();
     }
   }, [activeLanguage]);
 

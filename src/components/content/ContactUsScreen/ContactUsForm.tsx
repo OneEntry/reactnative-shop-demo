@@ -1,4 +1,5 @@
-import React, {useRef, useState} from 'react';
+/* eslint-disable prettier/prettier */
+import React, {useEffect, useRef, useState} from 'react';
 import {Alert, RefreshControl, ScrollView, View} from 'react-native';
 import FormDropdown from '../../shared/FormDropdown';
 import {useGetForm} from '../../../api';
@@ -6,13 +7,16 @@ import {Screen} from '../../ui/templates/Screen';
 import TopSpacerV2 from '../../ui/space/TopSpacerV2';
 import Loader from '../../ui/space/Loader';
 import {IAttributes} from 'oneentry/dist/base/utils';
-import {FormCaptcha} from '../../shared/FormCaptcha';
 import ContactUsInput from './ContactUsInput';
 import {useAppDispatch, useAppSelector} from '../../../state/hooks';
-import {clearAllFieldsContactUs} from '../../../state/reducers/ContactUsFieldsReducer';
+import {
+  addFieldContactUs,
+  clearAllFieldsContactUs,
+} from '../../../state/reducers/ContactUsFieldsReducer';
 import {navigate} from '../../../navigation/utils/NavigatonRef';
 import BigButton from '../../shared/BigButton';
 import {submitContactUsForm} from './submitContactUsForm';
+import {useAuth} from '../../../state/contexts/AuthContext';
 
 /**
  * A React component that renders a contact us form with dynamic fields based on the form data fetched from the server.
@@ -28,10 +32,14 @@ const ContactUsForm: React.FC = (): React.ReactElement => {
   const {loading, form, refetch} = useGetForm({
     marker: 'contact_us',
   });
-  const recaptcha = useRef<any>();
+  const [isSubmiting, setISubmiting] = useState(false);
+  const {user} = useAuth();
   const success_message = form?.localizeInfos?.successMessage;
   const unsuccess_message = form?.localizeInfos?.unsuccessMessage;
   const fields = useAppSelector(state => state.ContactUsFieldsReducer.fields);
+  const {incorrect_fields_text} = useAppSelector(
+    state => state.systemContentReducer.content,
+  );
   const dispatch = useAppDispatch();
 
   const onRefresh = () => {
@@ -46,21 +54,56 @@ const ContactUsForm: React.FC = (): React.ReactElement => {
    * Validates the form fields and triggers either form submission or CAPTCHA.
    */
   const verify = () => {
+    setISubmiting(true);
     let propertiesArray = Object.keys(fields);
 
     const isValid = propertiesArray?.findIndex(
       property => !fields[property].valid,
     );
     if (!isValid) {
-      Alert.alert('Not all fields are correct');
+      Alert.alert(incorrect_fields_text);
       return;
     }
+
+    const filteredObject = Object.fromEntries(
+      Object.entries(fields).filter(([key, value]) => value.value !== '' && value.value !== undefined)
+    );
     if (!isCaptcha) {
-      return submitContactUsForm(fields, onSuccess, onError);
-    } else {
-      recaptcha?.current?.open();
+      return submitContactUsForm(filteredObject, onSuccess, onError);
     }
+
+    setISubmiting(false);
   };
+
+  useEffect(() => {
+    if (form) {
+      form.attributes?.map((attribute: IAttributes) => {
+        const fieldValue =
+          (attribute?.marker === 'first_nme' &&
+            user?.formData?.find(field => field.marker === 'name_reg')
+              ?.value) ||
+          (attribute?.marker === 'email' &&
+            user?.formData?.find(field => field.marker === 'email_reg')
+              ?.value) ||
+          '';
+        dispatch(
+          addFieldContactUs({
+            [attribute.marker]: {
+              marker: attribute?.marker,
+              value: fieldValue,
+              valid: fieldValue
+                ? true
+                : !attribute?.validators?.requiredValidator,
+              type: attribute?.type,
+              validators: attribute?.validators,
+              title: attribute?.localizeInfos?.title,
+              listTitles: attribute?.listTitles,
+            },
+          }),
+        );
+      });
+    }
+  }, [form]);
 
   // Callback function for successful form submission.
   const onSuccess = () => {
@@ -86,24 +129,26 @@ const ContactUsForm: React.FC = (): React.ReactElement => {
       }>
       <Screen edges={['horizontal']}>
         <View style={{gap: 20}}>
-          {form?.attributes?.map((attribute: IAttributes, index: number) => {
+          {Object.entries(fields)?.map(([marker, value], index: number) => {
             // This switch statement is used to render the correct component based on the attribute type
-            switch (attribute.type) {
+            switch (value?.type) {
               case 'string':
                 return (
                   <ContactUsInput
-                    marker={attribute.marker}
-                    validators={attribute.validators}
-                    title={attribute.localizeInfos.title}
+                    marker={marker}
+                    validators={value?.validators}
+                    title={value?.title}
+                    field={value}
                     key={'contact_us_str' + index}
                   />
                 );
               case 'text':
                 return (
                   <ContactUsInput
-                    marker={attribute.marker}
-                    validators={attribute.validators}
-                    title={attribute.localizeInfos.title}
+                    marker={marker}
+                    validators={value?.validators}
+                    title={value?.title}
+                    field={value}
                     multiline
                     key={'contact_us_text' + index}
                   />
@@ -112,33 +157,34 @@ const ContactUsForm: React.FC = (): React.ReactElement => {
                 return (
                   <BigButton
                     action={verify}
-                    title={attribute.localizeInfos.title}
+                    isLoading={isSubmiting}
+                    title={value?.title}
                     key={index}
                     outline={false}
                     disabled={false}
                   />
                 );
-              case 'spam':
-                if (attribute?.settings?.captchaKey) {
-                  return (
-                    <FormCaptcha
-                      captchaKey={attribute.settings.captchaKey}
-                      captchaDomain={attribute.settings.captchaKeyDomain}
-                      token={token}
-                      onSuccess={() =>
-                        submitContactUsForm(fields, onSuccess, onError)
-                      }
-                      ref={recaptcha}
-                      setIsCaptcha={setIsCaptcha}
-                      setToken={setToken}
-                      key={index}
-                    />
-                  );
-                }
+              // case 'spam':
+              //   if (currentAttribute?.settings?.captchaKey) {
+              //     return (
+              //       <FormCaptcha
+              //         captchaKey={attribute.settings.captchaKey}
+              //         captchaDomain={attribute.settings.captchaKeyDomain}
+              //         token={token}
+              //         onSuccess={() =>
+              //           submitContactUsForm(fields, onSuccess, onError)
+              //         }
+              //         setIsCaptcha={setIsCaptcha}
+              //         setToken={setToken}
+              //         key={index}
+              //       />
+              //     );
+              //   }
 
               case 'list':
-                const dataArray = attribute.listTitles.reduce(
-                  (arr: any[], currentValue: any) => {
+                console.log(value);
+                const dataArray = value?.listTitles?.reduce(
+                  (arr: any[], currentValue) => {
                     arr.push({
                       label: currentValue.title,
                       value: currentValue.value,
@@ -149,10 +195,8 @@ const ContactUsForm: React.FC = (): React.ReactElement => {
                 );
                 return (
                   <FormDropdown
-                    label={attribute.localizeInfos.title}
-                    field={fields[attribute.marker]}
-                    name={attribute.marker}
-                    required={!!attribute?.validators?.requiredValidator}
+                    field={value}
+                    marker={marker}
                     data={dataArray}
                     key={index}
                   />

@@ -1,111 +1,94 @@
-import React, {memo, useEffect, useState} from 'react';
-import {ActivityIndicator, FlatList, RefreshControl, View} from 'react-native';
+import React, {memo, useEffect} from 'react';
+import {ActivityIndicator, RefreshControl, View} from 'react-native';
 import {FeaturedObjectItem} from '../../shared/FeaturedObjectItem';
-import {Screen} from '../../ui/templates/Screen';
 import {IProductsEntity} from 'oneentry/dist/products/productsInterfaces';
 import ContentNotFoundBlock from '../../shared/ContentNotFoundBlock';
-import {useAppDispatch} from '../../../state/hooks';
-import {setCatalogOffset} from '../../../state/reducers/FilterSlice';
-import Skeleton from '../../shared/Skeleton';
+import useGetProducts from '../../../hooks/content/ShopScreen/useGetProducts';
+import {FlashList} from '@shopify/flash-list';
+import {useAppDispatch, useAppSelector} from '../../../state/hooks';
+import {addMinMaxFilterPlaceholders} from '../../../state/reducers/FilterSlice';
+import {addCartCurrency} from '../../../state/reducers/userStateSlice';
+import CatalogLoadingComponent from './CatalogLoadingComponent';
 
 interface Props {
-  loadingProducts: boolean;
-  products: IProductsEntity[] | undefined;
-  loading: boolean;
-  numColumns: number;
-  search: string;
-  refreshing: boolean;
-  limit: number | null;
-  currentOffset: number;
-  onRefresh: () => void;
+  pageUrl?: string;
+  sortOption: 'low' | 'high' | undefined;
 }
 
-const ShopProductsList: React.FC<Props> = ({
-  loadingProducts,
-  loading,
-  products,
-  numColumns,
-  search,
-  refreshing,
-  limit,
-  currentOffset,
-  onRefresh,
-}) => {
+const ShopProductsList: React.FC<Props> = ({pageUrl, sortOption}) => {
+  const {search, availability} = useAppSelector(state => state.filterReducer);
   const dispatch = useAppDispatch();
-  const [showActivity, setShowActivity] = useState<boolean>(false);
 
+  // Fetch products based on the current page, filters and sort option
+  const {
+    products,
+    isFetchingNextPage,
+    onEndReached,
+    isLoading,
+    isRefetching,
+    refetch,
+    columns,
+  } = useGetProducts({
+    pageUrl,
+    search,
+    availability,
+    sortOption,
+  });
+
+  // Add minimum and maximum price filter placeholders and currency to the Redux store
   useEffect(() => {
-    setTimeout(() => setShowActivity(false), 200);
-  }, [currentOffset]);
+    if (products?.length && products[0]?.additional?.prices) {
+      dispatch(addMinMaxFilterPlaceholders(products[0]?.additional?.prices));
 
-  if (loading || loadingProducts) {
-    return (
-      <View style={{marginTop: 30, gap: 20}}>
-        <Skeleton
-          height={numColumns > 1 ? 265 : 162}
-          style={{borderRadius: 15}}
-        />
-        <Skeleton
-          height={numColumns > 1 ? 265 : 162}
-          style={{borderRadius: 15}}
-        />
-      </View>
-    );
+      const currency = products[0]?.attributeValues?.currency?.value;
+      currency && dispatch(addCartCurrency(currency));
+    }
+  }, [products]);
+
+  console.log(products?.map(product => product.id));
+
+  if (isLoading) {
+    return <CatalogLoadingComponent columns={columns} />;
   }
 
   return (
-    <Screen>
-      <FlatList
-        key={numColumns}
-        data={products}
-        renderItem={({item, index}) =>
-          item.isVisible ? (
-            <FeaturedObjectItem
-              loading={loading || loadingProducts}
-              product={item}
-              perRow={numColumns}
-            />
-          ) : (
-            <></>
-          )
-        }
-        showsVerticalScrollIndicator={false}
-        refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-        }
-        contentContainerStyle={{
-          gap: 20,
-          paddingBottom: 12,
-        }}
-        columnWrapperStyle={
-          numColumns > 1 && {
-            gap: 10,
-          }
-        }
-        numColumns={numColumns}
-        ListHeaderComponent={<View className={'mt-2.5'} />}
-        ListFooterComponent={
-          <View className={'h-72 items-center justify-start'}>
-            {showActivity && (
-              <ActivityIndicator color={'black'} size={'small'} />
-            )}
-          </View>
-        }
-        ListEmptyComponent={
-          <ContentNotFoundBlock loading={loading || loadingProducts} />
-        }
-        onEndReached={({distanceFromEnd}) => {
-          if (distanceFromEnd < 0 || search) {
-            return;
-          }
-          if (limit) {
-            // Display ActivityIndicator and trigger products update when scrolled to the end
-            setShowActivity(true);
-            dispatch(setCatalogOffset(currentOffset + limit));
-          }
-        }}
-      />
-    </Screen>
+    <FlashList<IProductsEntity>
+      key={columns}
+      data={products || []}
+      renderItem={({item, index}) => (
+        <View
+          style={{
+            flex: 1,
+            marginLeft: columns > 1 && index % 2 === 0 ? 0 : 5,
+            marginRight: columns > 1 && index % 2 === 1 ? 0 : 5,
+          }}>
+          <FeaturedObjectItem product={item} perRow={columns || 2} />
+        </View>
+      )}
+      keyExtractor={item => item.id.toString()}
+      showsVerticalScrollIndicator={false}
+      refreshControl={
+        <RefreshControl refreshing={isRefetching} onRefresh={refetch} />
+      }
+      contentContainerStyle={{
+        paddingBottom: 12,
+        paddingHorizontal: columns > 1 ? 5 : 0,
+      }}
+      ItemSeparatorComponent={() => <View style={{height: 10}} />}
+      numColumns={columns}
+      estimatedItemSize={columns > 1 ? 265 : 162}
+      ListHeaderComponent={<View style={{marginTop: 10}} />}
+      ListFooterComponent={
+        <View className={'h-72 items-center justify-start'}>
+          {isFetchingNextPage && (
+            <ActivityIndicator color={'black'} size={'small'} />
+          )}
+        </View>
+      }
+      ListEmptyComponent={<ContentNotFoundBlock loading={isLoading} />}
+      onEndReachedThreshold={0.4}
+      onEndReached={onEndReached}
+    />
   );
 };
 

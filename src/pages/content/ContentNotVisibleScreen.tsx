@@ -3,9 +3,9 @@ import {NativeModules, RefreshControl, ScrollView, View} from 'react-native';
 import {Paragraph} from '../../components/ui/texts/Paragraph';
 import TopSpacerV2 from '../../components/ui/space/TopSpacerV2';
 
-interface Props {}
+type Props = object;
 
-const ContentNotVisibleScreen: React.FC<Props> = ({}) => {
+const ContentNotVisibleScreen: React.FC<Props> = () => {
   const [refreshing, setRefreshing] = React.useState(false);
   const onRefresh = () => {
     setRefreshing(true);

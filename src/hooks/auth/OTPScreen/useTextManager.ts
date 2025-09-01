@@ -28,7 +28,9 @@ export default function useTextManager({
           onPress(OTP.current);
         }
       }
-    } catch (error) {}
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   // Callback fired on backspace press
@@ -38,7 +40,9 @@ export default function useTextManager({
       if (typeof onPress === 'function') {
         onPress(OTP.current);
       }
-    } catch (error) {}
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   // Callback fired on submit press
@@ -47,7 +51,9 @@ export default function useTextManager({
       if (typeof onSubmitPress === 'function') {
         onSubmitPress(OTP.current);
       }
-    } catch (error) {}
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   // Exporting the callbacks here

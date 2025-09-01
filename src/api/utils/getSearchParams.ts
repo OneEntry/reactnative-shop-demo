@@ -6,7 +6,7 @@ const getSearchParams = (searchParams?: {
   available?: boolean;
 }) => {
   const expandedFilters:
-    | Array<IFilterParams & {statusMarker?: string}>
+    | (IFilterParams & {statusMarker?: string})[]
     | undefined = [];
 
   // check if product has SKU or this is service product

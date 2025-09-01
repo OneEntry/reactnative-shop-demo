@@ -8,9 +8,9 @@ import {useAppSelector} from '../../state/hooks';
 import {RouteProp, useRoute} from '@react-navigation/native';
 import {DrawerStackNavigatorParamList} from '../../navigation';
 
-type Props = {};
+type Props = object;
 
-const MessageScreen: React.FC<Props> = ({}) => {
+const MessageScreen: React.FC<Props> = () => {
   const {
     params: {message},
   } = useRoute<RouteProp<DrawerStackNavigatorParamList, 'message'>>();

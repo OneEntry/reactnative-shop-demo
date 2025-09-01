@@ -18,12 +18,10 @@ import {
 } from '../../../state/reducers/FilterSlice';
 import {IFilterParams} from 'oneentry/dist/products/productsInterfaces';
 import {IPositionBlock} from 'oneentry/dist/pages/pagesInterfaces';
-import {useGetAttributesByMarker} from '../../../api';
 import {IListTitle} from 'oneentry/dist/attribute-sets/attributeSetsInterfaces';
 import Sort from '../../../assets/icons/Sort.svg';
 import FilterModal from './CatalogFiltersModal';
 import {useGetAttributesByMarkerQuery} from '../../../api/api/RTKApi';
-import {useFocusEffect} from '@react-navigation/native';
 
 type PopUpOption = {
   title: string;
@@ -37,10 +35,11 @@ interface Props {
   sortBlock?: IPositionBlock;
 }
 
-const SortFilterMenu: React.FC<Props> = ({setSortOption}) => {
+const SortFilterMenu: React.FC<Props> = ({setSortOption, sortBlock}) => {
   const {data: attributes, refetch} = useGetAttributesByMarkerQuery({
     setMarker: 'sort_catalog',
   });
+
   const [visible, setVisible] = useState<boolean>(false);
   const activeOption = useAppSelector(
     state => state.filterReducer.sortFilterActive,
@@ -49,7 +48,7 @@ const SortFilterMenu: React.FC<Props> = ({setSortOption}) => {
     state => state.systemContentReducer.content.open_filters_button,
   );
   const dispatch = useAppDispatch();
-  const previousFilter = useRef<IFilterParams>();
+  const previousFilter = useRef<IFilterParams>(null);
 
   const popUpFilterAction = (option: PopUpOption, index: number) => {
     previousFilter.current && dispatch(removeFilter(previousFilter.current));

@@ -6,9 +6,9 @@ import {
   WelcomeHeader,
 } from '../../components/auth/WelcomeScreen';
 
-type Props = {};
+type Props = object;
 
-const WelcomeScreen: React.FC<Props> = ({}) => {
+const WelcomeScreen: React.FC<Props> = () => {
   return (
     <Screen isFlex edges={['horizontal', 'bottom']}>
       <WelcomeHeader />

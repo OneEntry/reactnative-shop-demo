@@ -83,8 +83,7 @@ web-build/
 
 Gemfile.lock
 yarn.lock
-google-services.json
-GoogleService-Info.plist
-.yarnrc.yml
 
 /legacy
+.yarn.lock
+/.yarn

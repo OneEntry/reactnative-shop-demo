@@ -1,5 +1,5 @@
 import React, {memo} from 'react';
-import {ImageBackground, TouchableOpacity} from 'react-native';
+import {ImageBackground, Platform, TouchableOpacity} from 'react-native';
 import {Screen} from '../../../ui/templates/Screen';
 import {Paragraph} from '../../../ui/texts/Paragraph';
 import {IPositionBlock} from 'oneentry/dist/pages/pagesInterfaces';
@@ -53,7 +53,7 @@ const HomeBanner: React.FC<Props> = ({
     );
 
     return {
-      height,
+      height: Platform.OS === 'ios' ? height : 220,
     };
   });
 
@@ -66,7 +66,7 @@ const HomeBanner: React.FC<Props> = ({
     );
 
     return {
-      opacity,
+      opacity: Platform.OS === 'ios' ? opacity : 1,
     };
   });
 

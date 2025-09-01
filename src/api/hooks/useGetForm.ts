@@ -3,6 +3,7 @@ import {IFormsEntity} from 'oneentry/dist/forms/formsInterfaces';
 import {LanguageContext} from '../../state/contexts/LanguageContext';
 import {IAttributes, IError} from 'oneentry/dist/base/utils';
 import {defineApi} from '../api/defineApi';
+import {isError} from '../api/RTKApi';
 
 type UseGetFormProps = {
   marker: string;
@@ -34,8 +35,8 @@ export const useGetForm = ({marker}: UseGetFormProps) => {
       try {
         const result = await defineApi.Forms.getFormByMarker(marker);
 
-        if ((result as IError)?.statusCode >= 400) {
-          throw new Error((result as IError)?.message);
+        if (isError(result)) {
+          throw new Error(result?.message);
         }
 
         result.attributes = (result.attributes as IAttributes[]).sort(

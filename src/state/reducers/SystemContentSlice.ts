@@ -4,6 +4,7 @@ import {
   IListTitle,
 } from 'oneentry/dist/attribute-sets/attributeSetsInterfaces';
 import {IBlockEntity} from 'oneentry/dist/blocks/blocksInterfaces';
+import {IMenusPages} from 'oneentry/dist/menus/menusInterfaces';
 
 type ButtonsType = {
   addToCart: string;
@@ -54,6 +55,7 @@ export type ContentType = {
 type InitialStateType = {
   content: ContentType;
   cart_item_options?: IListTitle[];
+  menu: IMenusPages[];
 };
 const initialState: InitialStateType = {
   content: {
@@ -98,6 +100,7 @@ const initialState: InitialStateType = {
     verify: '',
     close_text: '',
   },
+  menu: [],
   cart_item_options: [],
 };
 
@@ -107,7 +110,9 @@ export const systemContentSlice = createSlice({
   reducers: {
     addContent(state, action: PayloadAction<IBlockEntity>) {
       const block = {
-        attributeValues: action.payload?.attributeValues?.en_US ?? action.payload?.attributeValues,
+        attributeValues:
+          action.payload?.attributeValues?.en_US ??
+          action.payload?.attributeValues,
       };
       if (!Object.entries(block)?.length) {
         return;
@@ -189,6 +194,28 @@ export const systemContentSlice = createSlice({
         sign_in_text: block?.attributeValues?.sign_in_text?.value,
         forgot_password_text:
           block?.attributeValues?.forgot_password_text?.value,
+        shipping_product_id: block?.attributeValues?.shipping_product_id?.value,
+        privacy_url: block?.attributeValues?.privacy_url?.value,
+        incorrect_fields_text:
+          block?.attributeValues?.incorrect_fields_text?.value,
+      };
+    },
+    addMenu(state, action: PayloadAction<IMenusPages[]>) {
+      state.menu = action.payload || [];
+    },
+    addStaticContent(state, action: PayloadAction<any[]>) {
+      const attributes = action?.payload?.reduce(
+        (obj: Record<string, any>, item) => {
+          obj[item.marker] = item?.localizeInfos?.value;
+          return obj;
+        },
+        {},
+      );
+
+      console.log(attributes);
+      state.content = {
+        ...state.content,
+        ...attributes,
       };
     },
     addCartOptions(
@@ -201,6 +228,7 @@ export const systemContentSlice = createSlice({
   },
 });
 
-export const {addContent, addCartOptions} = systemContentSlice.actions;
+export const {addContent, addCartOptions, addMenu, addStaticContent} =
+  systemContentSlice.actions;
 
 export default systemContentSlice.reducer;
